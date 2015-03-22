@@ -74,27 +74,16 @@ SUBROUTINE cpalslasso(w, tau, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
   INTEGER :: jd(*)
   INTEGER :: nlam,nalam
   INTEGER :: isd,npass,maxit,jerr
-  INTEGER :: ibeta(pmax)
-  INTEGER :: nbeta(nlam)
-  INTEGER :: itheta(pmax)
-  INTEGER :: ntheta(nlam)
-  DOUBLE PRECISION :: flmin
-  DOUBLE PRECISION :: eps
-  DOUBLE PRECISION :: w
-  DOUBLE PRECISION :: tau
-  DOUBLE PRECISION :: x(nobs, nvars)
-  DOUBLE PRECISION :: y(nobs)
-  DOUBLE PRECISION :: pf(nvars)
-  DOUBLE PRECISION :: pf2(nvars)
-  DOUBLE PRECISION :: ulam(nlam)
+  INTEGER :: ibeta(pmax),nbeta(nlam)
+  INTEGER :: itheta(pmax),ntheta(nlam)
+  DOUBLE PRECISION :: w,tau,flmin,eps
+  DOUBLE PRECISION :: x(nobs, nvars),y(nobs)
+  DOUBLE PRECISION :: pf(nvars),pf2(nvars)
+  DOUBLE PRECISION :: ulam(nlam),alam(nlam)
   DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam)
   DOUBLE PRECISION :: theta(pmax,nlam),t0(nlam)
-  DOUBLE PRECISION :: alam(nlam)
   ! --------- LOCAL DECLARATIONS ---------- !
-  INTEGER :: j
-  INTEGER :: l
-  INTEGER :: nk,nkk
-  INTEGER :: ierr
+  INTEGER :: j,l,nk,nkk,ierr
   INTEGER, DIMENSION(:), ALLOCATABLE :: ju
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: xmean,xnorm,maj
   ! --------- ALLOCATE VARIABLES ---------- !
@@ -155,48 +144,19 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
 
   IMPLICIT NONE     
   ! --------------- INPUT VARIABLES --------------- !
-  INTEGER :: nobs,nvars,dfmax,pmax
-  INTEGER :: nlam,nalam
-  INTEGER :: maxit,npass,jerr
-  INTEGER :: ju(nvars)
-  INTEGER :: ibeta(pmax),nbeta(nlam)
-  INTEGER :: itheta(pmax),ntheta(nlam)
-  DOUBLE PRECISION :: eps,w,tau
-  DOUBLE PRECISION :: x(nobs,nvars),y(nobs)
-  DOUBLE PRECISION :: pf(nvars),pf2(nvars)
-  DOUBLE PRECISION :: beta(pmax,nlam)
-  DOUBLE PRECISION :: theta(pmax,nlam)
-  DOUBLE PRECISION :: ulam(nlam)
-  DOUBLE PRECISION :: alam(nlam)
-  DOUBLE PRECISION :: maj(nvars)
-  DOUBLE PRECISION :: flmin
+  INTEGER :: nobs,nvars,dfmax,pmax,nlam,nalam,maxit,npass,jerr,ju(nvars)
+  INTEGER :: ibeta(pmax),nbeta(nlam),itheta(pmax),ntheta(nlam)
+  DOUBLE PRECISION :: eps,w,tau,flmin
+  DOUBLE PRECISION :: x(nobs,nvars),y(nobs),maj(nvars)
+  DOUBLE PRECISION :: pf(nvars),pf2(nvars),ulam(nlam),alam(nlam)
+  DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam),theta(pmax,nlam),t0(nlam)
   ! ------------- LOCAL DECLARATIONS -------------- !
   INTEGER, PARAMETER :: mnlam = 6
-  DOUBLE PRECISION, PARAMETER :: big = 9.9D30,mfl = 1.0D-06
-  DOUBLE PRECISION :: bigm
-  DOUBLE PRECISION :: d
-  DOUBLE PRECISION :: dif
-  DOUBLE PRECISION :: oldb,oldth
-  DOUBLE PRECISION :: u
-  DOUBLE PRECISION :: v
-  DOUBLE PRECISION :: al
-  DOUBLE PRECISION :: alf
-  DOUBLE PRECISION :: dl(nobs)
-  INTEGER :: mnl
-  INTEGER :: i
-  INTEGER :: k
-  INTEGER :: j
-  INTEGER :: l
-  INTEGER :: vrg
-  INTEGER :: ctr
-  INTEGER :: ierr
-  INTEGER :: nib
-  INTEGER :: nith
-  INTEGER :: me
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: b,th
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: oldbeta,oldtheta
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: r1,r2
+  INTEGER :: mnl,i,k,j,l,vrg,ctr,ierr,nib,nith,me
   INTEGER, DIMENSION (:), ALLOCATABLE :: mmb,mmth
+  DOUBLE PRECISION, PARAMETER :: big = 9.9D30,mfl = 1.0D-06
+  DOUBLE PRECISION :: tmp,bigm,d,dif,oldb,oldth,u,v,al,alf,dl(nobs)
+  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: b,th,oldbeta,oldtheta,r1,r2
   ! ----------------- ALLOCATE VARIABLES ------------------ !
   ALLOCATE (b(0:nvars), STAT=jerr)
   ALLOCATE (oldbeta(0:nvars), STAT=ierr)
@@ -295,28 +255,174 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
               u = (w + bigm) * maj(k) * b(k) + u/nobs
               v = ABS(u) - al * pf(k)
               IF (v > 0.0D0) THEN
-                b(k) = SIGN(v, u)/((w + bigm) * maj(k))
+                tmp = SIGN(v, u)/((w + bigm) * maj(k))
               ELSE
-                b(k) = 0.0D0
+                tmp = 0.0D0
               END IF
-              d = b(k) - oldb
-              IF (ABS(d) > 0.0D0) THEN
-                dif = MAX(dif, bigm * d**2)
-                r1 = r1 - x(:, k) * d
-                r2 = r2 - x(:, k) * d
-                IF (mmb(k) == 0) THEN
-                  nib = nib + 1
-                  IF (nib > pmax) EXIT
-                  mmb(k) = nib
-                  ibeta(nib) = k !indicate which coefficient is non-zero
-                END IF
-              END IF
+              d = tmp - b(k)
+              IF (bigm * d**2 < eps) EXIT
+              b(k) = tmp
+              r1 = r1 - x(:, k) * d
+              r2 = r2 - x(:, k) * d
             END DO ! END PROXIMAL GRADIENT DESCENT
+            d = b(k) - oldb
+            IF (ABS(d) > 0.0D0) THEN
+              dif = MAX(dif, bigm * d**2)
+              IF (mmb(k) == 0) THEN
+                nib = nib + 1
+                IF (nib > pmax) EXIT
+                mmb(k) = nib
+                ibeta(nib) = k ! RECORD ACTIVE VARIABLES
+              END IF
+            END IF
           END IF
         END DO
         DO k = 1, nvars
           IF (ju(k) /= 0) THEN
             oldth = th(k)
+            DO ! BEGIN PROXIMAL GRADIENT DESCENT
+              u = 0.0D0
+              DO i = 1, nobs
+                IF (r2(i) < 0.0D0) THEN
+                  dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+                ELSE
+                  dl(i) = 2.0D0 * tau * r2(i)
+                END IF
+                u = u + dl(i) * x(i,k)
+              END DO
+              u = bigm * maj(k) * th(k) + u/nobs
+              v = ABS(u) - al * pf2(k)
+              IF (v > 0.0D0) THEN
+                tmp = SIGN(v,u)/(bigm * maj(k))
+              ELSE
+                tmp = 0.0D0
+              END IF
+              d = tmp - th(k)
+              IF (bigm * d**2 < eps) EXIT
+              th(k) = tmp  
+              r2 = r2 - x(:,k) * d
+            END DO ! END PROXIMAL GRADIENT DESCENT
+            d = th(k) - oldth
+            IF (ABS(d) > 0.0D0) THEN
+              dif = MAX(dif, bigm * d**2)
+              IF (mmth(k) == 0) THEN
+                nith = nith + 1
+                IF (nith > pmax) EXIT
+                mmth(k) = nith
+                itheta(nith) = k ! RECORD ACTIVE VARIABLES
+              END IF
+            END IF
+          END IF
+        END DO
+        IF (nib > pmax) EXIT
+        IF (nith > pmax) EXIT
+        oldb = b(0)
+        DO ! BEGIN GRADIENT DESCENT
+          u = 0.0D0
+          DO i = 1, nobs
+            IF (r2(i) < 0.0D0) THEN
+              dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+            ELSE
+              dl(i) = 2.0D0 * tau * r2(i)
+            END IF
+            u = u + w * r1(i) + dl(i)
+          END DO
+          d = u/(nobs * (w + bigm))
+          IF (bigm * d**2 < eps) EXIT
+          b(0) = b(0) + d
+          r1 = r1 - d
+          r2 = r2 - d
+        END DO ! END GRADIENT DESCENT
+        d = b(0) - oldb
+        IF (ABS(d) > 0.0D0) THEN
+          dif = MAX(dif, bigm * d**2)
+        END IF
+        oldth = th(0)
+        DO ! BEGIN GRADIENT DESCENT
+          DO i = 1, nobs
+            IF (r2(i) < 0.0D0) THEN
+              dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+            ELSE
+              dl(i) = 2.0D0 * tau * r2(i)
+            END IF
+          END DO
+          d = SUM(dl)/(nobs * bigm)
+          IF (bigm * d**2 < eps) EXIT
+          th(0) = th(0) + d
+          r2 = r2 - d
+        END DO ! END GRADIENT DESCENT
+        d = th(0) - oldth
+        IF (ABS(d) > 0.0D0) THEN
+          dif = MAX(dif, bigm * d**2)
+        END IF
+        IF (dif < eps) EXIT
+        ! ------------------- INNER LOOP ------------------- !
+        DO
+          npass = npass + 1
+          dif = 0.0D0
+          DO j = 1, nib
+            k = ibeta(j)
+            oldb = b(k)
+            DO ! BEGIN PROXIMAL GRADIENT DESCENT
+              u = 0.0D0
+              DO i = 1, nobs
+                IF (r2(i) < 0.0D0) THEN
+                  dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+                ELSE
+                  dl(i) = 2.0D0 * tau * r2(i)
+                END IF
+                u = u + (w * r1(i) + dl(i)) * x(i,k)
+              END DO
+              u = (w + bigm) * maj(k) * b(k) + u/nobs
+              v = Abs(u) - al * pf(k)
+              IF (v > 0.0D0) THEN
+                tmp = SIGN(v,u)/((w + bigm) * maj(k))
+              ELSE
+                tmp = 0.0D0
+              END IF
+              d = tmp - b(k)
+              IF (bigm * d**2 < eps) EXIT
+              b(k) = tmp
+              r1 = r1 - x(:,k) * d
+              r2 = r2 - x(:,k) * d
+            END DO ! END PROXIMAL GRADIENT DESCENT
+            d = b(k) - oldb
+            IF (ABS(d) > 0.0D0) THEN
+              dif = MAX(dif, bigm * d**2)
+            END IF
+          END DO      
+          DO j = 1, nith
+            k = itheta(j)
+            oldth = th(k)
+            u = 0.0D0
+            DO ! BEGIN PROXIMAL GRADIENT DESCENT
+              DO i = 1, nobs
+                IF (r2(i) < 0.0D0) THEN
+                  dl (i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+                ELSE
+                  dl (i) = 2.0D0 * tau * r2(i)
+                END IF
+                u = u + dl(i) * x(i, k)
+              END DO
+              u = maj(k) * th(k) * bigm + u / nobs
+              v = Abs(u) - al * pf2(k)
+              IF (v > 0.0D0) THEN
+                tmp = SIGN(v, u)/(bigm * maj(k))
+              ELSE
+                tmp = 0.0D0
+              END IF
+              d = tmp - th(k)
+              IF (bigm * d**2 < eps) EXIT
+              th(k) = tmp
+              r2 = r2 - x(:,k) * d
+            END DO ! END PROXIMAL GRADIENT DESCENT
+            d = th(k) - oldth
+            IF (ABS(d) > 0.0D0) THEN
+              dif = MAX(dif, bigm * d**2)
+            END IF
+          END DO
+          oldb = b(0)
+          DO ! BEGIN GRADIENT DESCENT
             u = 0.0D0
             DO i = 1, nobs
               IF (r2(i) < 0.0D0) THEN
@@ -324,107 +430,51 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
               ELSE
                 dl(i) = 2.0D0 * tau * r2(i)
               END IF
-              u = u + dl(i) * x(i, k)
+              u = u + w * r1(i) + dl(i)
             END DO
-            u = maj(k) * th(k) * bigm + u / nobs
-            v = al * pf2(k)
-            v = Abs(u) - v
-            IF (v > 0.0D0) THEN
-              th(k) = SIGN(v, u) / (maj(k) * bigm)
-            ELSE
-              th(k) = 0.0D0
-            END IF
-            d = th(k) - oldth
-            IF (ABS(d) > 0.0D0) THEN
-              dif = MAX(dif, bigm * d**2)
-              r2 = r2 - x(:, k) * d
-              IF (mmth(k) == 0) THEN
-                nith = nith + 1
-                IF (nith > pmax) EXIT
-                mmth(k) = nith
-                itheta(nith) = k !indicate which coefficient is non-zero
-              END IF
-            END IF
+            d = u/(nobs * (w + bigm))
+            IF (bigm * d**2 < eps) EXIT
+            b(0) = b(0) + d
+            r1 = r1 - d
+            r2 = r2 - d
+          END DO ! END GRADIENT DESCENT
+          d = b(0) - oldb
+          IF (ABS(d) > 0.0D0) THEN
+            dif = MAX(dif, bigm * d**2)
           END IF
-        END DO
-        IF (dif < eps) EXIT
-        IF (nib > pmax) EXIT
-        IF (nith > pmax) EXIT
-! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!           ! -----------------inner loop ------------------- !
-! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!             DO !!! begin inner loop
-!               npass = npass + 1
-!               dif = 0.0D0
-!               DO j = 1, nib
-!                 k = ibeta(j)
-!                 oldb = b(k)
-!                 u = 0.0D0
-!                 DO i = 1, nobs
-!                   IF (r2(i) < 0.0D0) THEN
-!                     dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
-!                   ELSE
-!                     dl(i) = 2.0D0 * tau * r2(i)
-!                   END IF
-!                   u = u + (w * r1(i) + dl(i)) * x(i, k)
-!                 END DO
-!                 u = maj(k) * b(k) * (w + bigm) + u / nobs
-!                 v = al * pf(k)
-!                 v = Abs(u) - v
-!                 IF (v > 0.0D0) THEN
-!                   b(k) = SIGN(v, u) / (maj(k) * (w + bigm))
-!                 ELSE
-!                   b(k) = 0.0D0
-!                 END IF
-!                 d = b(k) - oldb
-!                 IF (ABS(d) > 0.0D0) THEN
-!                   dif = MAX(dif, bigm * d**2)
-!                   r1 = r1 - x(:, k) * d
-!                   r2 = r2 - x(:, k) * d
-!                 END IF
-!               END DO      
-
-!               DO j = 1, nith
-!                 k = itheta(j)
-!                 oldth = th(k)
-!                 u = 0.0D0
-!                 DO i = 1, nobs
-!                   IF (r2(i) < 0.0D0) THEN
-!                     dl (i) = 2.0D0 * (1.0D0 - tau) * r2(i)
-!                   ELSE
-!                     dl (i) = 2.0D0 * tau * r2(i)
-!                   END IF
-!                   u = u + dl(i) * x(i, k)
-!                 END DO
-!                 u = maj(k) * th(k) * bigm + u / nobs
-!                 v = al * pf2(k)
-!                 v = Abs(u) - v
-!                 IF (v > 0.0D0) THEN
-!                   th(k) = SIGN(v, u) / (maj(k) * bigm)
-!                 ELSE
-!                   th(k) = 0.0D0
-!                 END IF
-!                 d = th(k) - oldth
-!                 IF (ABS(d) > 0.0D0) THEN
-!                   dif = MAX(dif, bigm * d**2)
-!                   r2 = r2 - x(:, k) * d
-!                 END IF
-!               END DO 
-!               IF (dif < eps) EXIT
-!             END DO !!! end inner loop
-      END DO !!! end middle loop
+          oldth = th(0)
+          DO ! BEGIN GRADIENT DESCENT
+            DO i = 1, nobs
+              IF (r2(i) < 0.0D0) THEN
+                dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+              ELSE
+                dl(i) = 2.0D0 * tau * r2(i)
+              END IF
+            END DO
+            d = SUM(dl)/(nobs * bigm)
+            IF (bigm * d**2 < eps) EXIT
+            th(0) = th(0) + d
+            r2 = r2 - d
+          END DO ! END GRADIENT DESCENT
+          d = th(0) - oldth
+          IF (ABS(d) > 0.0D0) THEN
+            dif = MAX(dif, bigm * d**2)
+          END IF
+          IF (dif < eps) EXIT
+        END DO ! -----> END INNER LOOP
+      END DO ! ----> END MIDDLE LOOP
       IF (nib > pmax) EXIT
       IF (nith > pmax) EXIT
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            ! -------------- final check ---------------- !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      ! -------------- FINAL CHECK ---------------- !
       vrg = 1
+      IF ((b(0) - oldbeta(0))**2 >= eps) vrg = 0
       DO j = 1, nib
         IF ((b(ibeta(j))-oldbeta(ibeta(j)))**2 >= eps) THEN
           vrg = 0
           EXIT
         END IF
       END DO
+      IF ((th(0) - oldtheta(0))**2 >= eps) vrg = 0
       DO j = 1, nith
         IF ((th(itheta(j))-oldtheta(itheta(j)))**2 >= eps) THEN
           vrg = 0
@@ -437,10 +487,8 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
         jerr = - l
         RETURN
       END IF
-    END DO !!! end outer loop
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ! ----------- final update & save results ------------ !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    END DO ! -------> END OUTER LOOP
+    ! ----------- FINAL UPDATE & SAVE RESULTS ------------ !
     IF (nib > pmax) THEN
       jerr = - 10000 - l
       EXIT
@@ -450,8 +498,10 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
       EXIT
     END IF
     IF (nib > 0) beta(1:nib, l) = b(ibeta(1:nib))
+    b0(l) = b(0)
     nbeta(l) = nib
     IF (nith > 0) theta(1:nith, l) = th(itheta(1:nith))
+    t0(l) = th(0)
     ntheta(l) = nith
     alam(l) = al
     nalam = l
@@ -461,7 +511,7 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
     IF (me > dfmax) EXIT
     me = count(ABS(theta(1:nith, l)) > 0.0D0)
     IF (me > dfmax) EXIT
-  END DO !!! end lambda loop (the outmost loop)
+  END DO ! ----------> END LAMBDA LOOP
   DEALLOCATE(b, oldbeta, th, oldtheta, r1, r2, mmb, mmth)
   RETURN
 END SUBROUTINE cpalslassopath

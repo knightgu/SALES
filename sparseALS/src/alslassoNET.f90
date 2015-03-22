@@ -241,8 +241,7 @@ SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax
                 u = u + dl(i) * x(i,k)
               END DO
               u = maj(k) * b(k) + u/nobs
-              v = al * pf(k)
-              v = ABS(u) - v
+              v = ABS(u) - al * pf(k)
               IF (v > 0.0D0) THEN
                 tmp = SIGN(v,u)/(maj(k) + pf2(k) * lam2)
               ELSE

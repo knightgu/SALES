@@ -246,7 +246,7 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
     ctr = 0
     ! ------------------ OUTER LOOP -------------------- !
     DO
-      oldtheta(0) = b(0)
+      oldbeta(0) = b(0)
       IF (nib > 0) oldbeta(ibeta(1:nib)) = b(ibeta(1:nib))
       oldtheta(0) = th(0)
       IF (nith > 0) oldtheta(itheta(1:nith)) = th(itheta(1:nith))

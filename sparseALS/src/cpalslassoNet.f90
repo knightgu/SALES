@@ -1,10 +1,10 @@
-! -------------------------------------------------------------------------------
-! cpalslasso.f90: the coordinate descent algorithm for the couple ALS regression.
-! -------------------------------------------------------------------------------
+! ----------------------------------------------------------------------------------
+! cpalslassoNet.f90: the coordinate descent algorithm for the couple ALS regression.
+! ----------------------------------------------------------------------------------
 !
 ! USAGE:
 ! 
-! call cpalslasso(tau, nobs, nvars, x, y, pf, pf2, dfmax, pmax, nlam, &
+! call cpalslassoNET(tau, nobs, nvars, x, y, pfmean, pfscale, dfmax, pmax, nlam, &
 ! & flmin, ulam, eps, maxit, nalam, b0, beta, ibeta, &
 ! & nbeta, alam, npass, jerr)
 ! 
@@ -15,13 +15,13 @@
 !    nvars = number of predictor variables
 !    x(nobs,nvars) = matrix of covariates, dimension N * p; row -> observation.
 !    y(nobs) = response variable.
-!    pf(nvars) = relative L1 penalties for each predictor variable
-!                pf(j) = 0 => jth variable unpenalized
-!    pf2(nvars) = relative L2 penalties for each predictor variable
-!                pf2(j) = 0 => jth variable unpenalized
-!    dfmax = limit the MAXimum number of variables in the model.
+!    pfmean(nvars) = relative L1 penalties for each predictor variable
+!                pfmean(j) = 0 => jth variable unpenalized
+!    pfscale(nvars) = relative L2 penalties for each predictor variable
+!                pfscale(j) = 0 => jth variable unpenalized
+!    dfmax = limit the maximum number of variables in the model.
 !            (one of the stopping criterion)
-!    pmax = limit the MAXimum number of variables ever to be nonzero. 
+!    pmax = limit the maximum number of variables ever to be nonzero. 
 !           For example once beta enters the model, no matter how many 
 !           times it exits or re-enters model through the path, it will 
 !           be counted only once. 
@@ -33,7 +33,7 @@
 !    eps = convergence threshold for coordinate majorization descent. 
 !          Each inner coordinate majorization descent loop continues 
 !          until the relative change in any coefficient is less than eps.
-!    maxit = MAXimum number of outer-loop iterations allowed at fixed lambda value. 
+!    maxit = maximum number of outer-loop iterations allowed at fixed lambda value. 
 !            (suggested values, maxit = 100000)
 ! 
 ! OUTPUT:
@@ -63,9 +63,10 @@
 ! YUWEN GU 03/13/2015
 !
 ! ------------------------------------------------------------------------------------- !
-SUBROUTINE cpalslasso(w, tau, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
-& nlam, flmin, ulam, eps, isd, maxit, nalam, b0,beta, ibeta, nbeta, &
-& t0, theta, itheta, ntheta, alam, npass, jerr)
+SUBROUTINE cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, &
+& pfmean, pfscale, pf2mean, pf2scale, dfmax, pmax, nlam, flmin, &
+& ulam, eps, isd, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, &
+& itheta, ntheta, alam, npass, jerr)
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
@@ -76,9 +77,10 @@ SUBROUTINE cpalslasso(w, tau, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
   INTEGER :: isd,npass,maxit,jerr
   INTEGER :: ibeta(pmax),nbeta(nlam)
   INTEGER :: itheta(pmax),ntheta(nlam)
-  DOUBLE PRECISION :: w,tau,flmin,eps
+  DOUBLE PRECISION :: w,tau,lam2,flmin,eps
   DOUBLE PRECISION :: x(nobs, nvars),y(nobs)
-  DOUBLE PRECISION :: pf(nvars),pf2(nvars)
+  DOUBLE PRECISION :: pfmean(nvars),pfscale(nvars)
+  DOUBLE PRECISION :: pf2mean(nvars),pf2scale(nvars)
   DOUBLE PRECISION :: ulam(nlam),alam(nlam)
   DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam)
   DOUBLE PRECISION :: theta(pmax,nlam),t0(nlam)
@@ -102,21 +104,32 @@ SUBROUTINE cpalslasso(w, tau, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
     jerr = 7777
     RETURN
   END IF
-  IF (MAXVAL(pf) <= 0.0D0) THEN
+  IF (MAXVAL(pfmean) <= 0.0D0) THEN
     jerr = 10000
     RETURN
   END IF
-  IF (MAXVAL(pf2) <= 0.0D0) THEN
+  IF (MAXVAL(pfscale) <= 0.0D0) THEN
     jerr = 10000
     RETURN
   END IF
-  pf = MAX(0.0D0, pf)
-  pf2 = MAX(0.0D0, pf2)
+  IF (MAXVAL(pf2mean) <= 0.0D0) THEN
+    jerr = 10000
+    RETURN
+  END IF
+  IF (MAXVAL(pf2scale) <= 0.0D0) THEN
+    jerr = 10000
+    RETURN
+  END IF
+  pfmean = MAX(0.0D0, pfmean)
+  pfscale = MAX(0.0D0, pfscale)
+  pf2mean = MAX(0.0D0, pf2mean)
+  pf2scale = MAX(0.0D0, pf2scale)
   CALL standard(nobs, nvars, x, ju, isd, xmean, xnorm, maj)
   ! ------- CALL cpalslassopath -------- !
-  CALL cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
-  & pmax, nlam, flmin, ulam, eps, maxit, nalam, b0, beta, ibeta, nbeta, &
-  & t0, theta, itheta, ntheta, alam, npass, jerr)
+  CALL cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
+  & ju, pfmean, pfscale, pf2mean, pf2scale ,dfmax, pmax, nlam, flmin, ulam, &
+  & eps, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, itheta, ntheta, &
+  & alam, npass, jerr)
   IF (jerr > 0) RETURN ! CHECK ERROR AFTER CALLING FUNCTION
   ! ----------- TRANSFORM BETA BACK TO THE ORIGINAL SCALE ----------- !
   DO l = 1, nalam
@@ -135,20 +148,22 @@ SUBROUTINE cpalslasso(w, tau, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
   END DO
   DEALLOCATE(ju,xmean,xnorm,maj)
   RETURN
-END SUBROUTINE cpalslasso
+END SUBROUTINE cpalslassoNET
 
 ! ---------------------------------- cpalslassopath -------------------------------- !
-SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
-& pmax, nlam, flmin, ulam, eps, maxit, nalam, b0, beta, ibeta, nbeta, &
-& t0, theta, itheta, ntheta, alam, npass, jerr)
+SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
+& ju, pfmean, pfscale, pf2mean, pf2scale ,dfmax, pmax, nlam, flmin, ulam, &
+& eps, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, itheta, ntheta, &
+& alam, npass, jerr)
 
   IMPLICIT NONE     
   ! --------------- INPUT VARIABLES --------------- !
   INTEGER :: nobs,nvars,dfmax,pmax,nlam,nalam,maxit,npass,jerr,ju(nvars)
   INTEGER :: ibeta(pmax),nbeta(nlam),itheta(pmax),ntheta(nlam)
-  DOUBLE PRECISION :: eps,w,tau,flmin
+  DOUBLE PRECISION :: eps,w,tau,lam2,flmin
   DOUBLE PRECISION :: x(nobs,nvars),y(nobs),maj(nvars)
-  DOUBLE PRECISION :: pf(nvars),pf2(nvars),ulam(nlam),alam(nlam)
+  DOUBLE PRECISION :: pfmean(nvars),pfscale(nvars),ulam(nlam),alam(nlam)
+  DOUBLE PRECISION :: pf2mean(nvars),pf2scale(nvars)
   DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam),theta(pmax,nlam),t0(nlam)
   ! ------------- LOCAL DECLARATIONS -------------- !
   INTEGER, PARAMETER :: mnlam = 6
@@ -215,13 +230,13 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
         END DO
         DO j = 1, nvars
           IF (ju(j) /= 0) THEN
-            IF (pf(j) > 0.0D0) THEN
+            IF (pfmean(j) > 0.0D0) THEN
               u = DOT_PRODUCT(dl, x(:,j))
-              al = MAX(al,ABS(w*DOT_PRODUCT(r1,x(:,j))+u)/pf(j))
+              al = MAX(al,ABS(w*DOT_PRODUCT(r1,x(:,j))+u)/pfmean(j))
             END IF
-            IF (pf2(j) > 0.0D0) THEN
-              IF (pf(j) <= 0.0D0) u = DOT_PRODUCT(dl, x(:,j))
-              al = MAX(al, ABS(u)/pf2(j))
+            IF (pfscale(j) > 0.0D0) THEN
+              IF (pfmean(j) <= 0.0D0) u = DOT_PRODUCT(dl, x(:,j))
+              al = MAX(al, ABS(u)/pfscale(j))
             END IF
           END IF
         END DO
@@ -253,17 +268,17 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
                 u = u + (w * r1(i) + dl(i)) * x(i,k)
               END DO
               u = (w + bigm) * maj(k) * b(k) + u/nobs
-              v = ABS(u) - al * pf(k)
+              v = ABS(u) - al * pfmean(k)
               IF (v > 0.0D0) THEN
-                tmp = SIGN(v, u)/((w + bigm) * maj(k))
+                tmp = SIGN(v,u)/((w+bigm)*maj(k)+lam2*pf2mean(k))
               ELSE
                 tmp = 0.0D0
               END IF
               d = tmp - b(k)
               IF (bigm * d**2 < eps) EXIT
               b(k) = tmp
-              r1 = r1 - x(:, k) * d
-              r2 = r2 - x(:, k) * d
+              r1 = r1 - x(:,k) * d
+              r2 = r2 - x(:,k) * d
             END DO ! END PROXIMAL GRADIENT DESCENT
             d = b(k) - oldb
             IF (ABS(d) > 0.0D0) THEN
@@ -291,9 +306,9 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
                 u = u + dl(i) * x(i,k)
               END DO
               u = bigm * maj(k) * th(k) + u/nobs
-              v = ABS(u) - al * pf2(k)
+              v = ABS(u) - al * pfscale(k)
               IF (v > 0.0D0) THEN
-                tmp = SIGN(v,u)/(bigm * maj(k))
+                tmp = SIGN(v,u)/(bigm*maj(k)+lam2*pf2scale(k))
               ELSE
                 tmp = 0.0D0
               END IF
@@ -374,9 +389,9 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
                 u = u + (w * r1(i) + dl(i)) * x(i,k)
               END DO
               u = (w + bigm) * maj(k) * b(k) + u/nobs
-              v = Abs(u) - al * pf(k)
+              v = ABS(u) - al * pfmean(k)
               IF (v > 0.0D0) THEN
-                tmp = SIGN(v,u)/((w + bigm) * maj(k))
+                tmp = SIGN(v,u)/((w+bigm)*maj(k)+lam2*pf2mean(k))
               ELSE
                 tmp = 0.0D0
               END IF
@@ -402,12 +417,12 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
                 ELSE
                   dl (i) = 2.0D0 * tau * r2(i)
                 END IF
-                u = u + dl(i) * x(i, k)
+                u = u + dl(i) * x(i,k)
               END DO
-              u = maj(k) * th(k) * bigm + u / nobs
-              v = Abs(u) - al * pf2(k)
+              u = maj(k) * th(k) * bigm + u/nobs
+              v = ABS(u) - al * pfscale(k)
               IF (v > 0.0D0) THEN
-                tmp = SIGN(v, u)/(bigm * maj(k))
+                tmp = SIGN(v, u)/(bigm*maj(k)+lam2*pf2scale(k))
               ELSE
                 tmp = 0.0D0
               END IF
@@ -514,4 +529,4 @@ SUBROUTINE cpalslassopath(w, tau, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
   END DO ! ----------> END LAMBDA LOOP
   DEALLOCATE(b, oldbeta, th, oldtheta, r1, r2, mmb, mmth)
   RETURN
-END SUBROUTINE cpalslassopath
+END SUBROUTINE cpalslassoNETpath

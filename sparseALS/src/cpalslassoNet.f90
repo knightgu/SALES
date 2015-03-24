@@ -4,9 +4,9 @@
 !
 ! USAGE:
 ! 
-! CALL cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, &
-! & pfmean, pfscale, pf2mean, pf2scale, dfmax, pmax, nlam, flmin, &
-! & ulam, eps, isd, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, &
+! CALL cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, pfmean, &
+! & pfscale, pf2mean, pf2scale, dfmax, pmax, nlam, flmin, ulam, &
+! & eps, isd, intr, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, &
 ! & itheta, ntheta, alam, npass, jerr)
 ! 
 ! INPUT ARGUMENTS:
@@ -39,6 +39,13 @@
 !    eps = convergence threshold for coordinate majorization descent. 
 !          Each inner coordinate majorization descent loop continues 
 !          until the relative change in any coefficient is less than eps.
+!    isd = standarization flag:
+!          isd = 0 => regression on original predictor variables
+!          isd = 1 => regression on standardized predictor variables
+!          Note: output solutions always reference original scales.
+!    intr = intercept flag:
+!           intr = 0 => intercepts are always set to be zero
+!           intr = 1 => intercepts are calculated
 !    maxit = maximum number of outer-loop iterations allowed at fixed lambda value. 
 !            (suggested values, maxit = 100000)
 ! 
@@ -75,12 +82,12 @@
 ! -------------------------------------------------------------------------------- !
 SUBROUTINE cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, &
 & pfmean, pfscale, pf2mean, pf2scale, dfmax, pmax, nlam, flmin, &
-& ulam, eps, isd, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, &
-& itheta, ntheta, alam, npass, jerr)
+& ulam, eps, isd, intr, maxit, nalam, b0, beta, ibeta, nbeta, &
+& t0, theta, itheta, ntheta, alam, npass, jerr)
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
-  INTEGER :: nobs,nvars,dfmax,pmax,jd(*),nlam,nalam,isd,npass,maxit,jerr
+  INTEGER :: nobs,nvars,dfmax,pmax,jd(*),nlam,nalam,isd,npass,maxit,jerr,intr
   INTEGER :: ibeta(pmax),nbeta(nlam),itheta(pmax),ntheta(nlam)
   DOUBLE PRECISION :: w,tau,lam2,flmin,eps,ulam(nlam),alam(nlam)
   DOUBLE PRECISION :: x(nobs,nvars),y(nobs)
@@ -126,12 +133,12 @@ SUBROUTINE cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, &
   pfscale = MAX(0.0D0, pfscale)
   pf2mean = MAX(0.0D0, pf2mean)
   pf2scale = MAX(0.0D0, pf2scale)
-  CALL standard(nobs, nvars, x, ju, isd, xmean, xnorm, maj)
+  CALL standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)
   ! ------- CALL cpalslassopath -------- !
   CALL cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
   & ju, pfmean, pfscale, pf2mean, pf2scale ,dfmax, pmax, nlam, flmin, ulam, &
   & eps, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, itheta, ntheta, &
-  & alam, npass, jerr)
+  & alam, npass, jerr, intr)
   IF (jerr > 0) RETURN ! CHECK ERROR AFTER CALLING FUNCTION
   ! ----------- TRANSFORM BETA BACK TO THE ORIGINAL SCALE ----------- !
   DO l = 1, nalam
@@ -156,12 +163,12 @@ END SUBROUTINE cpalslassoNET
 SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
 & ju, pfmean, pfscale, pf2mean, pf2scale ,dfmax, pmax, nlam, flmin, ulam, &
 & eps, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, itheta, ntheta, &
-& alam, npass, jerr)
+& alam, npass, jerr, intr)
 
   IMPLICIT NONE     
   ! --------------- INPUT VARIABLES --------------- !
-  INTEGER :: nobs,nvars,dfmax,pmax,nlam,nalam,maxit,npass,jerr,ju(nvars)
-  INTEGER :: ibeta(pmax),nbeta(nlam),itheta(pmax),ntheta(nlam)
+  INTEGER :: nobs,nvars,dfmax,pmax,nlam,nalam,maxit,npass,jerr,intr
+  INTEGER :: ju(nvars),ibeta(pmax),nbeta(nlam),itheta(pmax),ntheta(nlam)
   DOUBLE PRECISION :: eps,w,tau,lam2,flmin
   DOUBLE PRECISION :: x(nobs,nvars),y(nobs),maj(nvars)
   DOUBLE PRECISION :: pfmean(nvars),pfscale(nvars),ulam(nlam),alam(nlam)
@@ -248,9 +255,11 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
     ctr = 0
     ! ------------------ OUTER LOOP -------------------- !
     DO
-      oldbeta(0) = b(0)
+      IF (intr == 1) THEN
+        oldbeta(0) = b(0)
+        oldtheta(0) = th(0)
+      END IF
       IF (nib > 0) oldbeta(ibeta(1:nib)) = b(ibeta(1:nib))
-      oldtheta(0) = th(0)
       IF (nith > 0) oldtheta(itheta(1:nith)) = th(itheta(1:nith))
       ! ----------------- MIDDLE LOOP -------------------- !
       DO
@@ -333,28 +342,30 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
         END DO
         IF (nib > pmax) EXIT
         IF (nith > pmax) EXIT
-        oldb = b(0)
-        oldth = th(0)
-        DO ! BEGIN NEWTON-RAPHSON
-          DO i = 1, nobs
-            IF (r2(i) < 0.0D0) THEN
-              dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
-            ELSE
-              dl(i) = 2.0D0 * tau * r2(i)
-            END IF
-          END DO
-          d = SUM(r1)/nobs
-          v = SUM(dl)/(2*(nobs*tau+(1-2*tau)*COUNT(r2<0))) - d
-          IF (bigm * d**2 < eps .AND. bigm * v**2 < eps) EXIT 
-          b(0) = b(0) + d
-          th(0) = th(0) + v
-          r1 = r1 - d
-          r2 = r2 - d - v    
-        END DO ! END NEWTON-RAPHSON
-        d = b(0) - oldb
-        IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
-        d = th(0) - oldth
-        IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+        IF (intr == 1) THEN
+          oldb = b(0)
+          oldth = th(0)
+          DO ! BEGIN NEWTON-RAPHSON
+            DO i = 1, nobs
+              IF (r2(i) < 0.0D0) THEN
+                dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+              ELSE
+                dl(i) = 2.0D0 * tau * r2(i)
+              END IF
+            END DO
+            d = SUM(r1)/nobs
+            v = SUM(dl)/(2*(nobs*tau+(1-2*tau)*COUNT(r2<0))) - d
+            IF (bigm * d**2 < eps .AND. bigm * v**2 < eps) EXIT 
+            b(0) = b(0) + d
+            th(0) = th(0) + v
+            r1 = r1 - d
+            r2 = r2 - d - v    
+          END DO ! END NEWTON-RAPHSON
+          d = b(0) - oldb
+          IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+          d = th(0) - oldth
+          IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+        END IF
         IF (dif < eps) EXIT
 !         ! ---------- INNER LOOP (ACTIVE SET ACCELERATION) ---------- !
 !         DO
@@ -417,28 +428,30 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
 !             d = th(k) - oldth
 !             IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
 !           END DO
-!           oldb = b(0)
-!           oldth = th(0)
-!           DO ! BEGIN NEWTON-RAPHSON
-!           DO i = 1, nobs
-!             IF (r2(i) < 0.0D0) THEN
-!               dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
-!             ELSE
-!               dl(i) = 2.0D0 * tau * r2(i)
-!             END IF
-!           END DO
-!           d = SUM(r1)/nobs
-!           v = SUM(dl)/(2*(nobs*tau+(1-2*tau)*COUNT(r2<0))) - d
-!           IF (bigm * d**2 < eps .AND. bigm * v**2 < eps) EXIT 
-!           b(0) = b(0) + d
-!           th(0) = th(0) + v
-!           r1 = r1 - d
-!           r2 = r2 - d - v    
-!           END DO ! END NEWTON-RAPHSON
-!           d = b(0) - oldb
-!           IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
-!           d = th(0) - oldth
-!           IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+!           IF (intr == 1) THEN
+!             oldb = b(0)
+!             oldth = th(0)
+!             DO ! BEGIN NEWTON-RAPHSON
+!               DO i = 1, nobs
+!                 IF (r2(i) < 0.0D0) THEN
+!                   dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+!                 ELSE
+!                   dl(i) = 2.0D0 * tau * r2(i)
+!                 END IF
+!               END DO
+!               d = SUM(r1)/nobs
+!               v = SUM(dl)/(2*(nobs*tau+(1-2*tau)*COUNT(r2<0))) - d
+!               IF (bigm * d**2 < eps .AND. bigm * v**2 < eps) EXIT 
+!               b(0) = b(0) + d
+!               th(0) = th(0) + v
+!               r1 = r1 - d
+!               r2 = r2 - d - v    
+!             END DO ! END NEWTON-RAPHSON
+!             d = b(0) - oldb
+!             IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+!             d = th(0) - oldth
+!             IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+!           END IF
 !           IF (dif < eps) EXIT
 !         END DO ! -----> END INNER LOOP
       END DO ! ----> END MIDDLE LOOP
@@ -446,14 +459,16 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
       IF (nith > pmax) EXIT
       ! -------------- FINAL CHECK ---------------- !
       vrg = 1
-      IF ((b(0) - oldbeta(0))**2 >= eps) vrg = 0
+      IF (intr == 1) THEN
+        IF ((b(0) - oldbeta(0))**2 >= eps) vrg = 0
+        IF ((th(0) - oldtheta(0))**2 >= eps) vrg = 0
+      END IF
       DO j = 1, nib
         IF ((b(ibeta(j))-oldbeta(ibeta(j)))**2 >= eps) THEN
           vrg = 0
           EXIT
         END IF
       END DO
-      IF ((th(0) - oldtheta(0))**2 >= eps) vrg = 0
       DO j = 1, nith
         IF ((th(itheta(j))-oldtheta(itheta(j)))**2 >= eps) THEN
           vrg = 0

@@ -5,8 +5,8 @@
 ! USAGE:
 ! 
 ! CALL alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, &
-! & pmax, nlam, flmin, ulam, eps, isd, maxit, nalam, b0, beta, ibeta, &
-! & nbeta, alam, npass, jerr)
+! & pmax, nlam, flmin, ulam, eps, isd, intr, maxit, nalam, b0, beta, &
+! & ibeta, nbeta, alam, npass, jerr)
 ! 
 ! INPUT ARGUMENTS:
 !
@@ -42,6 +42,9 @@
 !          isd = 0 => regression on original predictor variables
 !          isd = 1 => regression on standardized predictor variables
 !          Note: output solutions always reference original scales.
+!    intr = intercept flag:
+!           intr = 0 => intercept is always set to be zero
+!           intr = 1 => intercept is calculated
 !    maxit = maximum number of outer-loop iterations allowed at fixed lambda value. 
 !            (suggested values, maxit = 100000)
 ! 
@@ -80,13 +83,14 @@
 
 ! ------------------------------------------------------------------------------------ !
 SUBROUTINE alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
-& nlam, flmin, ulam, eps, isd, maxit, nalam, b0, beta, ibeta, nbeta, &
+& nlam, flmin, ulam, eps, isd, intr, maxit, nalam, b0, beta, ibeta, nbeta, &
 & alam, npass, jerr)
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
-  INTEGER :: nobs,nvars,dfmax,pmax,nlam,nalam,isd,npass,jerr,maxit
-  INTEGER :: jd(*),ibeta(pmax),nbeta(nlam)
+  INTEGER :: nobs,nvars,dfmax,pmax,nlam,nalam,isd,intr
+  INTEGER :: jd(*),npass,jerr,maxit
+  INTEGER :: ibeta(pmax),nbeta(nlam)
   DOUBLE PRECISION :: lam2,flmin,eps,tau
   DOUBLE PRECISION :: x(nobs,nvars),y(nobs)
   DOUBLE PRECISION :: pf(nvars),pf2(nvars)
@@ -122,11 +126,11 @@ SUBROUTINE alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
   END IF
   pf = MAX(0.0D0, pf)
   pf2 = MAX(0.0D0, pf2)
-  CALL standard(nobs, nvars, x, ju, isd, xmean, xnorm, maj)
+  CALL standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)
   ! -------------------- CALL alslassoNET --------------------- !
   CALL alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
   & pmax, nlam, flmin, ulam, eps, maxit, nalam, b0, beta, ibeta, &
-  & nbeta, alam, npass, jerr)
+  & nbeta, alam, npass, jerr, intr)
   IF (jerr > 0) RETURN ! CHECK ERROR AFTER CALLING FUNCTION
   ! ----------- TRANSFORM BETA BACK TO THE ORIGINAL SCALE ----------- !
   DO l = 1, nalam
@@ -146,11 +150,11 @@ END SUBROUTINE alslassoNET
 ! --------------------------------- alslassoNETpath --------------------------------- !
 SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax, &
 & pmax, nlam, flmin, ulam, eps, maxit, nalam, b0, beta, m, nbeta, alam, &
-& npass, jerr)
+& npass, jerr, intr)
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
-  INTEGER :: mnl,nobs,nvars,dfmax,pmax,nlam,maxit,nalam,npass,jerr
+  INTEGER :: mnl,nobs,nvars,dfmax,pmax,nlam,maxit,nalam,npass,jerr,intr
   INTEGER :: ju(nvars),m(pmax),nbeta(nlam)
   DOUBLE PRECISION :: lam2,eps,tau
   DOUBLE PRECISION :: x(nobs,nvars),y(nobs),maj(nvars)
@@ -221,7 +225,7 @@ SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax
     ctr = 0
     ! ------------------ OUTER LOOP -------------------- !
     DO
-      oldbeta(0) = b(0)
+      IF (intr == 1) oldbeta(0) = b(0)
       IF (ni > 0) oldbeta(m(1:ni)) = b(m(1:ni))
       ! ----------------- MIDDLE LOOP -------------------- !
       DO
@@ -265,62 +269,9 @@ SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax
           END IF
         END DO
         IF (ni > pmax) EXIT
-        oldb = b(0)
-        DO ! BEGIN GRADIENT DESCENT
-          DO i = 1, nobs
-            IF (r(i) < 0.0D0) THEN
-              dl(i) = 2.0D0 * (1.0D0 - tau) * r(i)
-            ELSE
-              dl(i) = 2.0D0 * tau * r(i)
-            END IF
-          END DO
-          d = SUM(dl)/(nobs * bigm)
-          IF (bigm * d**2 < eps) EXIT
-          b(0) = b(0) + d
-          r = r - d
-        END DO ! END GRADIENT DESCENT
-        d = b(0) - oldb
-        IF (ABS(d) > 0.0D0) THEN
-          dif = MAX(dif, bigm * d**2)
-        END IF
-        IF (dif < eps) EXIT
-        ! ---------- INNER LOOP (ACTIVE SET ACCELERATION) ---------- !
-        DO
-          npass = npass + 1
-          dif = 0.0D0
-          DO j = 1, ni
-            k = m(j)
-            oldb = b(k)
-            DO ! BEGIN PROXIMAL GRADIENT DESCENT
-              u = 0.0D0
-              DO i = 1, nobs
-                IF (r(i) < 0.0D0) THEN
-                  dl(i) = 2.0D0 * (1.0D0 - tau) * r(i)
-                ELSE
-                  dl(i) = 2.0D0 * tau * r(i)
-                END IF
-                u = u + dl(i) * x(i,k)
-              END DO
-              u = maj(k) * b(k) + u/nobs
-              v = al * pf(k)
-              v = ABS(u) - v
-              IF (v > 0.0D0) THEN
-                tmp = SIGN(v,u)/(maj(k) + pf2(k) * lam2)
-              ELSE
-                tmp = 0.0D0
-              END IF
-              d = tmp - b(k)
-              IF (bigm * d**2 < eps) EXIT
-              b(k) = tmp
-              r = r - x(:,k) * d
-            END DO ! END PROXIMAL GRADIENT DESCENT
-            d = b(k) - oldb
-            IF (ABS(d) > 0.0D0) THEN
-              dif = MAX(dif, bigm * d**2)
-            END IF
-          END DO
+        IF (intr == 1) THEN
           oldb = b(0)
-          DO ! BEGIN GRADIENT DESCENT     
+          DO ! BEGIN GRADIENT DESCENT
             DO i = 1, nobs
               IF (r(i) < 0.0D0) THEN
                 dl(i) = 2.0D0 * (1.0D0 - tau) * r(i)
@@ -334,16 +285,71 @@ SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax
             r = r - d
           END DO ! END GRADIENT DESCENT
           d = b(0) - oldb
-          IF (ABS(d) > 0.0D0) THEN
-              dif = MAX(dif, bigm * d**2)
-          END IF
-          IF (dif < eps) EXIT
-        END DO ! ----------> END INNER LOOP
+          IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+        END IF
+        IF (dif < eps) EXIT
+!         ! ----------------- INNER LOOP ------------------- !
+!         DO
+!           npass = npass + 1
+!           dif = 0.0D0
+!           DO j = 1, ni
+!             k = m(j)
+!             oldb = b(k)
+!             DO ! BEGIN PROXIMAL GRADIENT DESCENT
+!               u = 0.0D0
+!               DO i = 1, nobs
+!                 IF (r(i) < 0.0D0) THEN
+!                   dl(i) = 2.0D0 * (1.0D0 - tau) * r(i)
+!                 ELSE
+!                   dl(i) = 2.0D0 * tau * r(i)
+!                 END IF
+!                 u = u + dl(i) * x(i,k)
+!               END DO
+!               u = maj(k) * b(k) + u/nobs
+!               v = al * pf(k)
+!               v = ABS(u) - v
+!               IF (v > 0.0D0) THEN
+!                 tmp = SIGN(v,u)/(maj(k) + pf2(k) * lam2)
+!               ELSE
+!                 tmp = 0.0D0
+!               END IF
+!               d = tmp - b(k)
+!               IF (bigm * d**2 < eps) EXIT
+!               b(k) = tmp
+!               r = r - x(:,k) * d
+!             END DO ! END PROXIMAL GRADIENT DESCENT
+!             d = b(k) - oldb
+!             IF (ABS(d) > 0.0D0) THEN
+!               dif = MAX(dif, bigm * d**2)
+!             END IF
+!           END DO
+!           IF (intr == 1) THEN
+!             oldb = b(0)
+!             DO ! BEGIN GRADIENT DESCENT     
+!               DO i = 1, nobs
+!                 IF (r(i) < 0.0D0) THEN
+!                   dl(i) = 2.0D0 * (1.0D0 - tau) * r(i)
+!                 ELSE
+!                   dl(i) = 2.0D0 * tau * r(i)
+!                 END IF
+!               END DO
+!               d = SUM(dl)/(nobs * bigm)
+!               IF (bigm * d**2 < eps) EXIT
+!               b(0) = b(0) + d
+!               r = r - d
+!             END DO ! END GRADIENT DESCENT
+!             d = b(0) - oldb
+!             IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+!           END IF
+!           IF (dif < eps) EXIT
+!         END DO ! ----------> END INNER LOOP
       END DO ! ----------> END MIDDLE LOOP
       IF (ni > pmax) EXIT
       ! -------------- FINAL CHECK ---------------- !
       vrg = 1
-      IF ((b(0) - oldbeta(0))**2 >= eps) vrg = 0
+      IF (intr == 1) THEN
+        IF ((b(0) - oldbeta(0))**2 >= eps) vrg = 0
+      END IF
       DO j = 1, ni
         IF ((b(m(j)) - oldbeta(m(j)))**2 >= eps) THEN
           vrg = 0

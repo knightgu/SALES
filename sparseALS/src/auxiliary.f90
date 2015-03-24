@@ -58,27 +58,44 @@
 !
 
 ! ------------------------------------------------------------- !
-SUBROUTINE standard(nobs, nvars, x, ju, isd, xmean, xnorm, maj)     
+SUBROUTINE standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)     
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
-  INTEGER :: nobs,nvars,isd,ju(nvars)
+  INTEGER :: nobs,nvars,isd,intr,ju(nvars)
   DOUBLE PRECISION :: x(nobs,nvars),xmean(nvars),xnorm(nvars),maj(nvars)
   ! -------- LOCAL DECLARATIONS -------- !
   INTEGER :: j
-  ! -------- BEGIN PROGRAM -------- !                               
-  DO j = 1, nvars                                  
-    IF (ju(j) == 1) THEN                         
-      xmean(j) = SUM(x(:,j))/nobs  ! MEAN                        
-      x(:,j) = x(:,j) - xmean(j)    
-      maj(j) = DOT_PRODUCT(x(:,j),x(:,j))/nobs                                             
+  DOUBLE PRECISION :: xmsq,xvar
+  ! -------- BEGIN PROGRAM -------- !
+  IF (intr == 0) THEN
+    DO j = 1, nvars
+      IF (ju(j) == 1) THEN
+        xmean(j) = 0.0D0
+        maj(j) = DOT_PRODUCT(x(:,j),x(:,j))/nobs
         IF (isd == 1) THEN
-          xnorm(j) = SQRT(maj(j))  ! STANDARD DEVIATION              
+          xmsq = (SUM(x(:,j))/nobs)**2
+          xvar = maj(j) - xmsq
+          xnorm(j) = SQRT(xvar)
           x(:,j) = x(:,j)/xnorm(j)
-          maj(j) = 1.0D0
-        END IF                                                        
-    END IF                                     
-  END DO                             
+          maj(j) = 1.0D0 + xmsq/xvar
+        END IF
+      END IF
+    END DO
+  ELSE                   
+    DO j = 1, nvars                                  
+      IF (ju(j) == 1) THEN                         
+        xmean(j) = SUM(x(:,j))/nobs  ! MEAN                        
+        x(:,j) = x(:,j) - xmean(j)    
+        maj(j) = DOT_PRODUCT(x(:,j),x(:,j))/nobs                                             
+          IF (isd == 1) THEN
+            xnorm(j) = SQRT(maj(j))  ! STANDARD DEVIATION              
+            x(:,j) = x(:,j)/xnorm(j)
+            maj(j) = 1.0D0
+          END IF                                                        
+      END IF                                     
+    END DO  
+  END IF                           
 END SUBROUTINE standard
 
 

@@ -1,24 +1,30 @@
-! ----------------------------------------------------------------------------------
-! cpalslassoNet.f90: the coordinate descent algorithm for the couple ALS regression.
-! ----------------------------------------------------------------------------------
+! ------------------------------------------------------------------------------
+! cpalslassoNet.f90: coordinate descent algorithm for the couple ALS regression.
+! ------------------------------------------------------------------------------
 !
 ! USAGE:
 ! 
-! call cpalslassoNET(tau, nobs, nvars, x, y, pfmean, pfscale, dfmax, pmax, nlam, &
-! & flmin, ulam, eps, maxit, nalam, b0, beta, ibeta, &
-! & nbeta, alam, npass, jerr)
+! CALL cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, &
+! & pfmean, pfscale, pf2mean, pf2scale, dfmax, pmax, nlam, flmin, &
+! & ulam, eps, isd, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, &
+! & itheta, ntheta, alam, npass, jerr)
 ! 
 ! INPUT ARGUMENTS:
 !
-!    tau = the asymmetry coefficient in the expectile regression model.
+!    tau = the asymmetry coefficient in the coupled sparse ALS model.
+!    w = weight assigned to the first part of the loss function
 !    nobs = number of observations
 !    nvars = number of predictor variables
 !    x(nobs,nvars) = matrix of covariates, dimension N * p; row -> observation.
 !    y(nobs) = response variable.
-!    pfmean(nvars) = relative L1 penalties for each predictor variable
-!                pfmean(j) = 0 => jth variable unpenalized
-!    pfscale(nvars) = relative L2 penalties for each predictor variable
-!                pfscale(j) = 0 => jth variable unpenalized
+!    pfmean(nvars) = relative L1 penalties for each mean coefficient
+!                pfmean(j) = 0 => jth mean coefficient unpenalized
+!    pfscale(nvars) = relative L1 penalties for each scale coefficient
+!                pfscale(j) = 0 => jth scale coefficient unpenalized
+!    pf2mean(nvars) = relative L2 penalties for each mean coefficient
+!                pfmean(j) = 0 => jth mean coefficient unpenalized
+!    pf2scale(nvars) = relative L2 penalties for each scale coefficient
+!                pfscale(j) = 0 => jth scale coefficient unpenalized
 !    dfmax = limit the maximum number of variables in the model.
 !            (one of the stopping criterion)
 !    pmax = limit the maximum number of variables ever to be nonzero. 
@@ -39,30 +45,34 @@
 ! OUTPUT:
 ! 
 !    nalam = actual number of lambda values (solutions)
-!    beta(pmax,nalam) = compressed coefficient values for each solution
-!    ibeta(pmax) = pointers to compressed coefficients
-!    nbeta(nalam) = number of compressed coefficients for each solution
+!    beta(pmax,nalam) = compressed mean coefficient values for each solution 
+!    ibeta(pmax) = pointers to compressed mean coefficients
+!    nbeta(nalam) = number of compressed mean coefficients for each solution
+!    theta(pmax,nalam) = compressed scale coefficient values for each solution 
+!    itheta(pmax) = pointers to compressed scale coefficients
+!    ntheta(nalam) = number of compressed scale coefficients for each solution
 !    alam(nalam) = lambda values corresponding to each solution
 !    npass = actual number of passes over the data for all lambda values
 !    jerr = error flag:
-!           jerr  = 0 => no error
+!           jerr = 0 => no error
 !           jerr > 0 => fatal error - no output returned
-!                    jerr < 7777 => memory allocation error
-!                    jerr = 7777 => all used predictors have zero variance
-!                    jerr = 10000 => MAXval(vp) <= 0.0
+!                jerr < 7777 => memory allocation error
+!                jerr = 7777 => all used predictors have zero variance
+!                jerr = 10000 => maxval(vp) <= 0.0
 !           jerr < 0 => non fatal error - partial output:
-!                    Solutions for larger lambdas (1:(k-1)) returned.
-!                    jerr = -k => convergence for kth lambda value not reached
-!                           after maxit (see above) iterations.
-!                    jerr = -10000-k => number of non zero coefficients along path
-!                           exceeds pmax (see above) at kth lambda value.
+!                Solutions for larger lambdas (1:(k-1)) returned.
+!                jerr = -k => convergence for kth lambda value not reached
+!                  after maxit (see above) iterations.
+!                jerr = -10000-k => number of nonzero coefficients along path
+!                  exceeds pmax (see above) at kth lambda value.
 ! 
 ! LICENSE: GNU GPL (version 2 or later)
 ! 
 ! AUTHORS:
-! YUWEN GU 03/13/2015
+! YUWEN GU (guxxx192@umn.edu), YI YANG (yiyang@umn.edu), HUI ZOU (zouxx019@umn.edu)
+!   SCHOOL OF STATISTICS, UNIVERSITY OF MINNESOTA
 !
-! ------------------------------------------------------------------------------------- !
+! -------------------------------------------------------------------------------- !
 SUBROUTINE cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, &
 & pfmean, pfscale, pf2mean, pf2scale, dfmax, pmax, nlam, flmin, &
 & ulam, eps, isd, maxit, nalam, b0, beta, ibeta, nbeta, t0, theta, &
@@ -70,20 +80,12 @@ SUBROUTINE cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, &
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
-  INTEGER :: nobs,nvars
-  INTEGER :: dfmax,pmax
-  INTEGER :: jd(*)
-  INTEGER :: nlam,nalam
-  INTEGER :: isd,npass,maxit,jerr
-  INTEGER :: ibeta(pmax),nbeta(nlam)
-  INTEGER :: itheta(pmax),ntheta(nlam)
-  DOUBLE PRECISION :: w,tau,lam2,flmin,eps
-  DOUBLE PRECISION :: x(nobs, nvars),y(nobs)
-  DOUBLE PRECISION :: pfmean(nvars),pfscale(nvars)
-  DOUBLE PRECISION :: pf2mean(nvars),pf2scale(nvars)
-  DOUBLE PRECISION :: ulam(nlam),alam(nlam)
-  DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam)
-  DOUBLE PRECISION :: theta(pmax,nlam),t0(nlam)
+  INTEGER :: nobs,nvars,dfmax,pmax,jd(*),nlam,nalam,isd,npass,maxit,jerr
+  INTEGER :: ibeta(pmax),nbeta(nlam),itheta(pmax),ntheta(nlam)
+  DOUBLE PRECISION :: w,tau,lam2,flmin,eps,ulam(nlam),alam(nlam)
+  DOUBLE PRECISION :: x(nobs,nvars),y(nobs)
+  DOUBLE PRECISION :: pfmean(nvars),pfscale(nvars),pf2mean(nvars),pf2scale(nvars)
+  DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam),theta(pmax,nlam),t0(nlam)
   ! --------- LOCAL DECLARATIONS ---------- !
   INTEGER :: j,l,nk,nkk,ierr
   INTEGER, DIMENSION(:), ALLOCATABLE :: ju
@@ -332,28 +334,8 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
         IF (nib > pmax) EXIT
         IF (nith > pmax) EXIT
         oldb = b(0)
-        DO ! BEGIN GRADIENT DESCENT
-          u = 0.0D0
-          DO i = 1, nobs
-            IF (r2(i) < 0.0D0) THEN
-              dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
-            ELSE
-              dl(i) = 2.0D0 * tau * r2(i)
-            END IF
-            u = u + w * r1(i) + dl(i)
-          END DO
-          d = u/(nobs * (w + bigm))
-          IF (bigm * d**2 < eps) EXIT
-          b(0) = b(0) + d
-          r1 = r1 - d
-          r2 = r2 - d
-        END DO ! END GRADIENT DESCENT
-        d = b(0) - oldb
-        IF (ABS(d) > 0.0D0) THEN
-          dif = MAX(dif, bigm * d**2)
-        END IF
         oldth = th(0)
-        DO ! BEGIN GRADIENT DESCENT
+        DO ! BEGIN NEWTON-RAPHSON
           DO i = 1, nobs
             IF (r2(i) < 0.0D0) THEN
               dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
@@ -361,122 +343,104 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
               dl(i) = 2.0D0 * tau * r2(i)
             END IF
           END DO
-          d = SUM(dl)/(nobs * bigm)
-          IF (bigm * d**2 < eps) EXIT
-          th(0) = th(0) + d
-          r2 = r2 - d
-        END DO ! END GRADIENT DESCENT
+          d = SUM(r1)/nobs
+          v = SUM(dl)/(2*(nobs*tau+(1-2*tau)*COUNT(r2<0))) - d
+          IF (bigm * d**2 < eps .AND. bigm * v**2 < eps) EXIT 
+          b(0) = b(0) + d
+          th(0) = th(0) + v
+          r1 = r1 - d
+          r2 = r2 - d - v    
+        END DO ! END NEWTON-RAPHSON
+        d = b(0) - oldb
+        IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
         d = th(0) - oldth
-        IF (ABS(d) > 0.0D0) THEN
-          dif = MAX(dif, bigm * d**2)
-        END IF
+        IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
         IF (dif < eps) EXIT
-        ! ------------------- INNER LOOP ------------------- !
-        DO
-          npass = npass + 1
-          dif = 0.0D0
-          DO j = 1, nib
-            k = ibeta(j)
-            oldb = b(k)
-            DO ! BEGIN PROXIMAL GRADIENT DESCENT
-              u = 0.0D0
-              DO i = 1, nobs
-                IF (r2(i) < 0.0D0) THEN
-                  dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
-                ELSE
-                  dl(i) = 2.0D0 * tau * r2(i)
-                END IF
-                u = u + (w * r1(i) + dl(i)) * x(i,k)
-              END DO
-              u = (w + bigm) * maj(k) * b(k) + u/nobs
-              v = ABS(u) - al * pfmean(k)
-              IF (v > 0.0D0) THEN
-                tmp = SIGN(v,u)/((w+bigm)*maj(k)+lam2*pf2mean(k))
-              ELSE
-                tmp = 0.0D0
-              END IF
-              d = tmp - b(k)
-              IF (bigm * d**2 < eps) EXIT
-              b(k) = tmp
-              r1 = r1 - x(:,k) * d
-              r2 = r2 - x(:,k) * d
-            END DO ! END PROXIMAL GRADIENT DESCENT
-            d = b(k) - oldb
-            IF (ABS(d) > 0.0D0) THEN
-              dif = MAX(dif, bigm * d**2)
-            END IF
-          END DO      
-          DO j = 1, nith
-            k = itheta(j)
-            oldth = th(k)
-            u = 0.0D0
-            DO ! BEGIN PROXIMAL GRADIENT DESCENT
-              DO i = 1, nobs
-                IF (r2(i) < 0.0D0) THEN
-                  dl (i) = 2.0D0 * (1.0D0 - tau) * r2(i)
-                ELSE
-                  dl (i) = 2.0D0 * tau * r2(i)
-                END IF
-                u = u + dl(i) * x(i,k)
-              END DO
-              u = maj(k) * th(k) * bigm + u/nobs
-              v = ABS(u) - al * pfscale(k)
-              IF (v > 0.0D0) THEN
-                tmp = SIGN(v, u)/(bigm*maj(k)+lam2*pf2scale(k))
-              ELSE
-                tmp = 0.0D0
-              END IF
-              d = tmp - th(k)
-              IF (bigm * d**2 < eps) EXIT
-              th(k) = tmp
-              r2 = r2 - x(:,k) * d
-            END DO ! END PROXIMAL GRADIENT DESCENT
-            d = th(k) - oldth
-            IF (ABS(d) > 0.0D0) THEN
-              dif = MAX(dif, bigm * d**2)
-            END IF
-          END DO
-          oldb = b(0)
-          DO ! BEGIN GRADIENT DESCENT
-            u = 0.0D0
-            DO i = 1, nobs
-              IF (r2(i) < 0.0D0) THEN
-                dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
-              ELSE
-                dl(i) = 2.0D0 * tau * r2(i)
-              END IF
-              u = u + w * r1(i) + dl(i)
-            END DO
-            d = u/(nobs * (w + bigm))
-            IF (bigm * d**2 < eps) EXIT
-            b(0) = b(0) + d
-            r1 = r1 - d
-            r2 = r2 - d
-          END DO ! END GRADIENT DESCENT
-          d = b(0) - oldb
-          IF (ABS(d) > 0.0D0) THEN
-            dif = MAX(dif, bigm * d**2)
-          END IF
-          oldth = th(0)
-          DO ! BEGIN GRADIENT DESCENT
-            DO i = 1, nobs
-              IF (r2(i) < 0.0D0) THEN
-                dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
-              ELSE
-                dl(i) = 2.0D0 * tau * r2(i)
-              END IF
-            END DO
-            d = SUM(dl)/(nobs * bigm)
-            IF (bigm * d**2 < eps) EXIT
-            th(0) = th(0) + d
-            r2 = r2 - d
-          END DO ! END GRADIENT DESCENT
-          d = th(0) - oldth
-          IF (ABS(d) > 0.0D0) THEN
-            dif = MAX(dif, bigm * d**2)
-          END IF
-          IF (dif < eps) EXIT
-        END DO ! -----> END INNER LOOP
+!         ! ---------- INNER LOOP (ACTIVE SET ACCELERATION) ---------- !
+!         DO
+!           npass = npass + 1
+!           dif = 0.0D0
+!           DO j = 1, nib
+!             k = ibeta(j)
+!             oldb = b(k)
+!             DO ! BEGIN PROXIMAL GRADIENT DESCENT
+!               u = 0.0D0
+!               DO i = 1, nobs
+!                 IF (r2(i) < 0.0D0) THEN
+!                   dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+!                 ELSE
+!                   dl(i) = 2.0D0 * tau * r2(i)
+!                 END IF
+!                 u = u + (w * r1(i) + dl(i)) * x(i,k)
+!               END DO
+!               u = (w + bigm) * maj(k) * b(k) + u/nobs
+!               v = ABS(u) - al * pfmean(k)
+!               IF (v > 0.0D0) THEN
+!                 tmp = SIGN(v,u)/((w+bigm)*maj(k)+lam2*pf2mean(k))
+!               ELSE
+!                 tmp = 0.0D0
+!               END IF
+!               d = tmp - b(k)
+!               IF (bigm * d**2 < eps) EXIT
+!               b(k) = tmp
+!               r1 = r1 - x(:,k) * d
+!               r2 = r2 - x(:,k) * d
+!             END DO ! END PROXIMAL GRADIENT DESCENT
+!             d = b(k) - oldb
+!             IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+!           END DO      
+!           DO j = 1, nith
+!             k = itheta(j)
+!             oldth = th(k)
+!             u = 0.0D0
+!             DO ! BEGIN PROXIMAL GRADIENT DESCENT
+!               DO i = 1, nobs
+!                 IF (r2(i) < 0.0D0) THEN
+!                   dl (i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+!                 ELSE
+!                   dl (i) = 2.0D0 * tau * r2(i)
+!                 END IF
+!                 u = u + dl(i) * x(i,k)
+!               END DO
+!               u = maj(k) * th(k) * bigm + u/nobs
+!               v = ABS(u) - al * pfscale(k)
+!               IF (v > 0.0D0) THEN
+!                 tmp = SIGN(v, u)/(bigm*maj(k)+lam2*pf2scale(k))
+!               ELSE
+!                 tmp = 0.0D0
+!               END IF
+!               d = tmp - th(k)
+!               IF (bigm * d**2 < eps) EXIT
+!               th(k) = tmp
+!               r2 = r2 - x(:,k) * d
+!             END DO ! END PROXIMAL GRADIENT DESCENT
+!             d = th(k) - oldth
+!             IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+!           END DO
+!           oldb = b(0)
+!           oldth = th(0)
+!           DO ! BEGIN NEWTON-RAPHSON
+!           DO i = 1, nobs
+!             IF (r2(i) < 0.0D0) THEN
+!               dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+!             ELSE
+!               dl(i) = 2.0D0 * tau * r2(i)
+!             END IF
+!           END DO
+!           d = SUM(r1)/nobs
+!           v = SUM(dl)/(2*(nobs*tau+(1-2*tau)*COUNT(r2<0))) - d
+!           IF (bigm * d**2 < eps .AND. bigm * v**2 < eps) EXIT 
+!           b(0) = b(0) + d
+!           th(0) = th(0) + v
+!           r1 = r1 - d
+!           r2 = r2 - d - v    
+!           END DO ! END NEWTON-RAPHSON
+!           d = b(0) - oldb
+!           IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+!           d = th(0) - oldth
+!           IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
+!           IF (dif < eps) EXIT
+!         END DO ! -----> END INNER LOOP
       END DO ! ----> END MIDDLE LOOP
       IF (nib > pmax) EXIT
       IF (nith > pmax) EXIT
@@ -522,9 +486,9 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
     nalam = l
     IF (l < mnl) CYCLE
     IF (flmin >= 1.0D0) CYCLE
-    me = count(ABS(beta(1:nib, l)) > 0.0D0)
+    me = COUNT(ABS(beta(1:nib,l)) > 0.0D0)
     IF (me > dfmax) EXIT
-    me = count(ABS(theta(1:nith, l)) > 0.0D0)
+    me = COUNT(ABS(theta(1:nith,l)) > 0.0D0)
     IF (me > dfmax) EXIT
   END DO ! ----------> END LAMBDA LOOP
   DEALLOCATE(b, oldbeta, th, oldtheta, r1, r2, mmb, mmth)

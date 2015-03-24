@@ -1,10 +1,10 @@
-! --------------------------------------------------------------------------
-! alslassoNET.f90: the coordinate descent algorithm for the ALS regression.
-! --------------------------------------------------------------------------
+! ------------------------------------------------------------------------------
+! alslassoNET.f90: coordinate descent algorithm for the ALS regression.
+! ------------------------------------------------------------------------------
 ! 
 ! USAGE:
 ! 
-! call alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, &
+! CALL alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, &
 ! & pmax, nlam, flmin, ulam, eps, isd, maxit, nalam, b0, beta, ibeta, &
 ! & nbeta, alam, npass, jerr)
 ! 
@@ -57,25 +57,26 @@
 !    jerr = error flag:
 !           jerr = 0 => no error
 !           jerr > 0 => fatal error - no output returned
-!                    jerr < 7777 => memory allocation error
-!                    jerr = 7777 => all used predictors have zero variance
-!                    jerr = 10000 => maxval(vp) <= 0.0
+!                jerr < 7777 => memory allocation error
+!                jerr = 7777 => all used predictors have zero variance
+!                jerr = 10000 => maxval(vp) <= 0.0
 !           jerr < 0 => non fatal error - partial output:
-!                    Solutions for larger lambdas (1:(k-1)) returned.
-!                    jerr = -k => convergence for kth lambda value not reached
-!                           after maxit (see above) iterations.
-!                    jerr = -10000-k => number of non zero coefficients along path
-!                           exceeds pmax (see above) at kth lambda value.
+!                Solutions for larger lambdas (1:(k-1)) returned.
+!                jerr = -k => convergence for kth lambda value not reached
+!                  after maxit (see above) iterations.
+!                jerr = -10000-k => number of nonzero coefficients along path
+!                  exceeds pmax (see above) at kth lambda value.
 ! 
 ! LICENSE: GNU GPL (version 2 or later)
 ! 
 ! AUTHORS:
-!    Yuwen Gu (guxxx192@umn.edu), Yi Yang (yiyang@umn.edu), and Hui Zou (hzou@stat.umn.edu), 
-!    School of Statistics, University of Minnesota.
+! YUWEN GU (guxxx192@umn.edu), YI YANG (yiyang@umn.edu), HUI ZOU (zouxx019@umn.edu)
+!   SCHOOL OF STATISTICS, UNIVERSITY OF MINNESOTA
 ! 
 ! REFERENCES:
-!    Yang, Y. and Zou, H. (2012). An Efficient Algorithm for Computing The HHSVM and Its 
-!      Generalizations. Journal of Computational and Graphical Statistics, 22, 396-415.
+!    Yang, Y. and Zou, H. (2012). An Efficient Algorithm for Computing 
+!      The HHSVM and Its Generalizations. Journal of Computational and 
+!      Graphical Statistics, 22, 396-415.
 
 ! ------------------------------------------------------------------------------------ !
 SUBROUTINE alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
@@ -85,8 +86,7 @@ SUBROUTINE alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
   INTEGER :: nobs,nvars,dfmax,pmax,nlam,nalam,isd,npass,jerr,maxit
-  INTEGER :: jd(*)
-  INTEGER :: ibeta(pmax),nbeta(nlam)
+  INTEGER :: jd(*),ibeta(pmax),nbeta(nlam)
   DOUBLE PRECISION :: lam2,flmin,eps,tau
   DOUBLE PRECISION :: x(nobs,nvars),y(nobs)
   DOUBLE PRECISION :: pf(nvars),pf2(nvars)
@@ -284,7 +284,7 @@ SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax
           dif = MAX(dif, bigm * d**2)
         END IF
         IF (dif < eps) EXIT
-        ! ----------------- INNER LOOP ------------------- !
+        ! ---------- INNER LOOP (ACTIVE SET ACCELERATION) ---------- !
         DO
           npass = npass + 1
           dif = 0.0D0

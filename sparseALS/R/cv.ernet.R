@@ -1,31 +1,30 @@
-cv.ernet <- function(x, y, lambda = NULL, pred.loss = c("misclass", 
-    "loss"), nfolds = 5, foldid, delta = 2, tau = 0.5, ...) {
-    if (missing(pred.loss)) 
-        pred.loss <- "default" else pred.loss <- match.arg(pred.loss)
+cv.ernet <- function(x, y, lambda = NULL, pred.loss = "loss", 
+            nfolds = 5, foldid, tau = 0.5, ...) {
+    pred.loss <- match.arg(pred.loss)
     N <- nrow(x)
     ###Fit the model once to get dimensions etc of output
     y <- drop(y)
-    ernet.object <- ernet(x, y, lambda = lambda, delta = delta, tau = tau,
-        ...)
+    ernet.object <- ernet(x, y, lambda = lambda, tau = tau, ...)
     lambda <- ernet.object$lambda
     # predict -> coef
     nz <- sapply(coef(ernet.object, type = "nonzero"), length)
-    if (missing(foldid)) 
-        foldid <- sample(rep(seq(nfolds), length = N)) else nfolds <- max(foldid)
+    if (missing(foldid)) {
+      foldid <- sample(rep(seq(nfolds), length = N))  
+    } else nfolds <- max(foldid)
     if (nfolds < 3) 
-        stop("nfolds must be bigger than 3; nfolds=10 recommended")
+      stop("nfolds must be bigger than 3; nfolds=10 recommended")
     outlist <- as.list(seq(nfolds))
     ###Now fit the nfold models and store them
     for (i in seq(nfolds)) {
-        which <- foldid == i
-        y_sub <- y[!which]
-        outlist[[i]] <- ernet(x = x[!which, , drop = FALSE], 
-            y = y_sub, lambda = lambda, delta = delta, tau = tau, ...)
+      whichfold <- foldid == i
+      y_sub <- y[!whichfold]
+      outlist[[i]] <- ernet(x = x[!whichfold, , drop = FALSE], 
+          y = y_sub, lambda = lambda, tau = tau, ...)
     }
     ###What to do depends on the pred.loss and the model fit
     fun <- paste("cv", class(ernet.object)[[2]], sep = ".")
     cvstuff <- do.call(fun, list(outlist, lambda, x, y, foldid, 
-        pred.loss, delta, tau))
+        pred.loss, tau))
     cvm <- cvstuff$cvm
     cvsd <- cvstuff$cvsd
     cvname <- cvstuff$name

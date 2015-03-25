@@ -1,14 +1,12 @@
-######################################################################
+###############################################################
 ## This function is adapted/modified based on the plot
-#   function from
-## the glmnet package:
-## Jerome Friedman, Trevor Hastie, Robert Tibshirani
-#   (2010).
+#    function from the glmnet package:
+## Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010).
 ## Regularization Paths for Generalized Linear Models via
-#   Coordinate Descent.
-##        Journal of Statistical Software, 33(1), 1-22.
-##        URL http://www.jstatsoft.org/v33/i01/.
-
+#    Coordinate Descent.
+## Journal of Statistical Software, 33(1), 1-22.
+## URL http://www.jstatsoft.org/v33/i01/.
+###############################################################
 
 plot.ernet <- function(x, xvar = c("norm", "lambda"), 
     color = FALSE, label = FALSE, ...) {

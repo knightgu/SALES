@@ -4,7 +4,8 @@ cpernet <- function(x, y, w = 1.0, nlambda = 100L, method = "cper",
                   pf2.mean = rep(1, nvars), pf.scale = rep(1, nvars),
                   pf2.scale = rep(1, nvars), exclude, dfmax = nvars + 1, 
                   pmax = min(dfmax * 1.2, nvars), standardize = TRUE, 
-                  eps = 1e-08, maxit = 1000000L, tau = 0.80) {
+                  intercept = TRUE, eps = 1e-08, maxit = 1000000L, 
+                  tau = 0.80) {
     #################################################################################
     ## data setup
     method <- match.arg(method)
@@ -39,6 +40,7 @@ cpernet <- function(x, y, w = 1.0, nlambda = 100L, method = "cper",
     pfscale <- as.double(pf.scale)
     pf2scale <- as.double(pf2.scale)
     isd <- as.integer(standardize)
+    intr <- as.integer(intercept)
     eps <- as.double(eps)
     dfmax <- as.integer(dfmax)
     pmax <- as.integer(pmax)
@@ -61,7 +63,7 @@ cpernet <- function(x, y, w = 1.0, nlambda = 100L, method = "cper",
         nlam <- as.integer(length(lambda))
     }
     #################################################################################
-    fit <- cpalspath(x, y, w, nlam, flmin, ulam, isd, eps, dfmax, pmax, jd, 
+    fit <- cpalspath(x, y, w, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd, 
                      pfmean, pf2mean, pfscale, pf2scale, maxit, lam2, tau, 
                      nobs, nvars, vnames)
     if (is.null(lambda)) fit$lambda <- lamfix(fit$lambda)

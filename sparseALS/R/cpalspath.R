@@ -1,4 +1,4 @@
-cpalspath <- function(x, y, w, nlam, flmin, ulam, isd, eps, dfmax, pmax, jd, 
+cpalspath <- function(x, y, w, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd, 
                       pfmean, pf2mean, pfscale, pf2scale, maxit, lam2,
                       tau, nobs, nvars, vnames) {
     #################################################################################
@@ -12,9 +12,9 @@ cpalspath <- function(x, y, w, nlam, flmin, ulam, isd, eps, dfmax, pmax, jd,
     w <- as.double(w)
     #################################################################################
     # call Fortran core
-    fit <- .Fortran("cpalslassoNET", w, tau, lam2, nobs, nvars, x, 
-        y, jd, pfmean, pfscale, pf2mean, pf2scale, dfmax, pmax, nlam, flmin, ulam, 
-        eps, isd, maxit, nalam = integer(1), b0 = double(nlam), beta = double(pmax * nlam), 
+    fit <- .Fortran("cpalslassoNET", w, tau, lam2, nobs, nvars, x, y, jd, pfmean, 
+        pfscale, pf2mean, pf2scale, dfmax, pmax, nlam, flmin, ulam, eps, isd, intr, 
+        maxit, nalam = integer(1), b0 = double(nlam), beta = double(pmax * nlam), 
         ibeta = integer(pmax), nbeta = integer(nlam), t0 = double(nlam), 
         theta = double(pmax * nlam), itheta = integer(pmax), ntheta = integer(nlam), 
         alam = double(nlam), npass = integer(1), jerr = integer(1), PACKAGE = "sparseALS")

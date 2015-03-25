@@ -1,9 +1,10 @@
-ernet <- function(x, y, nlambda = 100L, method = c("als", "cpals"), 
-                  lambda.factor = ifelse(nobs < nvars, 0.01, 0.0001), 
+ernet <- function(x, y, nlambda = 100L, method = "er", 
+                  lambda.factor = ifelse(nobs < nvars, 1e-02, 1e-04), 
                   lambda = NULL, lambda2 = 0, pf = rep(1, nvars), 
                   pf2 = rep(1, nvars), exclude, dfmax = nvars + 1, 
                   pmax = min(dfmax * 1.2, nvars), standardize = TRUE, 
-                  eps = 1e-08, maxit = 1000000L, tau = 0.5) {
+                  intercept = TRUE, eps = 1e-08, maxit = 1000000L, 
+                  tau = 0.5) {
     #################################################################################
     ## data setup
     method <- match.arg(method)
@@ -15,19 +16,21 @@ ernet <- function(x, y, nlambda = 100L, method = c("als", "cpals"),
     nvars <- as.integer(np[2])
     vnames <- colnames(x)
     if (is.null(vnames)) vnames <- paste("V", seq(nvars), sep = "")
-    if (length(y) != nobs) stop("x and y have different number of observations")
+    if (NROW(y) != nobs) stop("x and y have different number of observations")
+    if (NCOL(y) > 1L) stop("Multivariate response is not supported now")
     #################################################################################
     ## parameter setup
     if (length(pf) != nvars) 
-      stop("The size of L1 penalty factors must be same as the number of input variables")
-	  if (length(pf2) != nvars) 
-      stop("The size of L2 penalty factors must be same as the number of input variables")
-    if (lambda2 < 0) stop("lambda2 must be non-negative")
+      stop("Size of L1 penalty factors does not match the number of input variables")
+    if (length(pf2) != nvars) 
+      stop("Size of L2 penalty factors does not match the number of input variables")
+    if (lambda2 < 0) stop("lambda2 should be non-negative")
     maxit <- as.integer(maxit)
     lam2 <- as.double(lambda2)
     pf <- as.double(pf)
     pf2 <- as.double(pf2)
     isd <- as.integer(standardize)
+    intr <- as.integer(intercept)
     eps <- as.double(eps)
     dfmax <- as.integer(dfmax)
     pmax <- as.integer(pmax)
@@ -50,11 +53,8 @@ ernet <- function(x, y, nlambda = 100L, method = c("als", "cpals"),
         nlam <- as.integer(length(lambda))
     }
     #################################################################################
-    fit <- switch(method, 
-	       als = alspath(x, y, nlam, flmin, ulam, isd, eps, dfmax, pmax, jd, 
-                pf, pf2, maxit, lam2, tau, nobs, nvars, vnames),
-	       cpals = cpalspath(x, y, nlam, flmin, ulam, isd, eps, dfmax, pmax, jd, 
-                pf, pf2, maxit, lam2, nobs, nvars, vnames))
+    fit <- alspath(x, y, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd, 
+                pf, pf2, maxit, lam2, tau, nobs, nvars, vnames)
     if (is.null(lambda)) 
         fit$lambda <- lamfix(fit$lambda)
     fit$call <- this.call

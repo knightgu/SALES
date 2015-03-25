@@ -13,7 +13,7 @@
 !
 ! USAGE:
 ! 
-! call standard(nobs, nvars, x, ju, isd, xmean, xnorm, maj)   
+! call standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)   
 ! 
 ! INPUT ARGUMENTS:
 ! 
@@ -27,6 +27,9 @@
 !          isd = 0 => do not standardize predictor variables
 !          isd = 1 => standardize predictor variables
 !          NOTE: Be isd 1 or 0, matrix x is always centered columnwise, col.mean(x) = 0.
+!    intr = intercept flag:
+!           intr = 0 => intercept is always zero
+!           intr = 1 => intercept is calculated
 !    
 ! OUTPUT:
 !

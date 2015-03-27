@@ -348,13 +348,13 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
           DO ! BEGIN NEWTON-RAPHSON
             DO i = 1, nobs
               IF (r2(i) < 0.0D0) THEN
-                dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+                dl(i) = (1.0D0 - tau) * r2(i)
               ELSE
-                dl(i) = 2.0D0 * tau * r2(i)
+                dl(i) = tau * r2(i)
               END IF
             END DO
             d = SUM(r1)/nobs
-            v = SUM(dl)/(2*(nobs*tau+(1-2*tau)*COUNT(r2<0))) - d
+            v = SUM(dl)/(nobs*tau+(1-2*tau)*COUNT(r2<0.0D0))-d
             IF (bigm * d**2 < eps .AND. bigm * v**2 < eps) EXIT 
             b(0) = b(0) + d
             th(0) = th(0) + v
@@ -434,13 +434,13 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
 !             DO ! BEGIN NEWTON-RAPHSON
 !               DO i = 1, nobs
 !                 IF (r2(i) < 0.0D0) THEN
-!                   dl(i) = 2.0D0 * (1.0D0 - tau) * r2(i)
+!                   dl(i) = (1.0D0 - tau) * r2(i)
 !                 ELSE
-!                   dl(i) = 2.0D0 * tau * r2(i)
+!                   dl(i) = tau * r2(i)
 !                 END IF
 !               END DO
 !               d = SUM(r1)/nobs
-!               v = SUM(dl)/(2*(nobs*tau+(1-2*tau)*COUNT(r2<0))) - d
+!               v = SUM(dl)/(nobs*tau+(1-2*tau)*COUNT(r2<0.0D0))-d
 !               IF (bigm * d**2 < eps .AND. bigm * v**2 < eps) EXIT 
 !               b(0) = b(0) + d
 !               th(0) = th(0) + v

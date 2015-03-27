@@ -271,19 +271,19 @@ SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax
         IF (ni > pmax) EXIT
         IF (intr == 1) THEN
           oldb = b(0)
-          DO ! BEGIN GRADIENT DESCENT
+          DO ! BEGIN GRADIENT DESCENT (NEWTON-RAPHSON)
             DO i = 1, nobs
               IF (r(i) < 0.0D0) THEN
-                dl(i) = 2.0D0 * (1.0D0 - tau) * r(i)
+                dl(i) = (1.0D0 - tau) * r(i)
               ELSE
-                dl(i) = 2.0D0 * tau * r(i)
+                dl(i) = tau * r(i)
               END IF
             END DO
-            d = SUM(dl)/(nobs * bigm)
+            d = SUM(dl)/(nobs*tau + (1-2*tau)*COUNT(r<0.0D0)) 
             IF (bigm * d**2 < eps) EXIT
             b(0) = b(0) + d
             r = r - d
-          END DO ! END GRADIENT DESCENT
+          END DO ! END GRADIENT DESCENT (NEWTON-RAPHSON)
           d = b(0) - oldb
           IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
         END IF
@@ -325,7 +325,7 @@ SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax
 !           END DO
 !           IF (intr == 1) THEN
 !             oldb = b(0)
-!             DO ! BEGIN GRADIENT DESCENT     
+!             DO ! BEGIN GRADIENT DESCENT (NEWTON-RAPHSON)    
 !               DO i = 1, nobs
 !                 IF (r(i) < 0.0D0) THEN
 !                   dl(i) = 2.0D0 * (1.0D0 - tau) * r(i)
@@ -333,11 +333,11 @@ SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax
 !                   dl(i) = 2.0D0 * tau * r(i)
 !                 END IF
 !               END DO
-!               d = SUM(dl)/(nobs * bigm)
+!               d = SUM(dl)/(nobs*tau + (1-2*tau)*COUNT(r<0.0D0))
 !               IF (bigm * d**2 < eps) EXIT
 !               b(0) = b(0) + d
 !               r = r - d
-!             END DO ! END GRADIENT DESCENT
+!             END DO ! END GRADIENT DESCENT (NEWTON-RAPHSON)
 !             d = b(0) - oldb
 !             IF (ABS(d) > 0.0D0) dif = MAX(dif, bigm * d**2)
 !           END IF

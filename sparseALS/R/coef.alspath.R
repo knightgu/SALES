@@ -14,6 +14,6 @@ coef.alspath <- function(object, s = NULL, type =
       dimnames(nbeta) <- list(vnames, paste(seq(along = s)))
     }
     if (type == "coefficients") return(nbeta)
-    if (type == "nonzero") 
+    if (type == "nonzero") # return locations of nonzero coefficients for each lambda
       return(nonzero(nbeta[-1, , drop = FALSE], bystep = TRUE))
 } 

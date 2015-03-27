@@ -1,13 +1,15 @@
-cv.ernet <- function(x, y, lambda = NULL, pred.loss = "loss", 
-            nfolds = 5, foldid, tau = 0.5, ...) {
+cv.cpernet <- function(x, y, w = 1.0, lambda = NULL, pred.loss = "loss", 
+            nfolds = 5, foldid, tau = 0.8, ...) {
     pred.loss <- match.arg(pred.loss)
     N <- nrow(x)
     ###Fit the model once to get dimensions etc of output
     y <- drop(y)
-    ernet.object <- ernet(x, y, lambda = lambda, tau = tau, ...)
-    lambda <- ernet.object$lambda
+    cpernet.object <- cpernet(x, y, w, lambda = lambda, tau = tau, ...)
+    lambda <- cpernet.object$lambda
     # predict -> coef
-    nz <- sapply(coef(ernet.object, type = "nonzero"), length)
+    nz <- coef(cpernet.object, type = "nonzero")
+    nz[[1]] <- sapply(nz[[1]], length)
+    nz[[2]] <- sapply(nz[[2]], length)
     if (missing(foldid)) {
       foldid <- sample(rep(seq(nfolds), length = N))  
     } else nfolds <- max(foldid)
@@ -18,20 +20,21 @@ cv.ernet <- function(x, y, lambda = NULL, pred.loss = "loss",
     for (i in seq(nfolds)) {
       whichfold <- foldid == i
       y_sub <- y[!whichfold]
-      outlist[[i]] <- ernet(x = x[!whichfold, , drop = FALSE], 
-          y = y_sub, lambda = lambda, tau = tau, ...)
+      outlist[[i]] <- cpernet(x = x[!whichfold, , drop = FALSE], 
+          y = y_sub, w = w, lambda = lambda, tau = tau, ...)
     }
     ###What to do depends on the pred.loss and the model fit
-    fun <- paste("cv", class(ernet.object)[[2]], sep = ".")
+    fun <- paste("cv", class(cpernet.object)[[2]], sep = ".")
     cvstuff <- do.call(fun, list(outlist, lambda, x, y, foldid, 
-        pred.loss, tau))
+        pred.loss, w, tau))
     cvm <- cvstuff$cvm
     cvsd <- cvstuff$cvsd
     cvname <- cvstuff$name
     out <- list(lambda = lambda, cvm = cvm, cvsd = cvsd, cvupper = cvm + 
-        cvsd, cvlower = cvm - cvsd, nzero = nz, name = cvname, ernet.fit = ernet.object)
+        cvsd, cvlower = cvm - cvsd, nzero = as.list(nz), name = cvname, 
+        cpernet.fit = cpernet.object)
     lamin <- getmin(lambda, cvm, cvsd)
     obj <- c(out, as.list(lamin))
-    class(obj) <- "cv.ernet"
+    class(obj) <- "cv.cpernet"
     obj
 } 

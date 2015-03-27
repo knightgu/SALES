@@ -5,8 +5,8 @@ cpalspath <- function(x, y, w, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, j
     #data setup
     storage.mode(y) <- "double"
     storage.mode(x) <- "double"
-    if (tau <= 0 || tau >= 1) 
-        stop("tau must be in (0,1)")
+    if (tau <= 0 || tau >= 1 || tau == 0.5) 
+        stop("tau must be in (0,1)\\{0.5}")
 	tau <- as.double(tau)
     if (w <= 0) stop("Weight must be positive.")
     w <- as.double(w)
@@ -22,6 +22,6 @@ cpalspath <- function(x, y, w, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, j
     # output
     outlist <- getoutput(fit, maxit, pmax, nvars, vnames)
     outlist <- c(outlist, list(npasses = fit$npass, jerr = fit$jerr))
-    class(outlist) <- c("cperpath")
+    class(outlist) <- c("cpalspath")
     outlist
 } 

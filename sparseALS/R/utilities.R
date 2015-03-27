@@ -137,10 +137,10 @@ lambda.interp <- function(lambda, s) {
   ### Note: lambda decreases. you take:
   ### sfrac*left+(1-sfrac)*right
   if (length(lambda) == 1) {
-      nums <- length(s)
-      left <- rep(1, nums)
-      right <- left
-      sfrac <- rep(1, nums)
+    nums <- length(s)
+    left <- rep(1, nums)
+    right <- left
+    sfrac <- rep(1, nums)
   } else {
       s[s > max(lambda)] <- max(lambda)
       s[s < min(lambda)] <- min(lambda)
@@ -169,22 +169,22 @@ nonzero <- function(beta, bystep = FALSE) {
   ##beta should be in 'dgCMatrix' format
   if (nrow(beta) == 1) {
     if (bystep) 
-        apply(beta, 2, function(x) if (abs(x) > 0) 
-            1 else NULL) else {
-        if (any(abs(beta) > 0)) 
-            1 else NULL
+      apply(beta, 2, function(x) if (abs(x) > 0) 
+          1 else NULL) else {
+      if (any(abs(beta) > 0)) 
+          1 else NULL
     }
   } else {
       beta <- t(beta)
-      which <- diff(beta@p)
-      which <- seq(which)[which > 0]
+      actvars <- diff(beta@p)
+      actvars <- seq(actvars)[actvars > 0]
       if (bystep) {
-          nzel <- function(x, which) if (any(x)) 
-              which[x] else NULL
-          beta <- abs(as.matrix(beta[, which])) > 0
-          if (ns == 1) 
-              apply(beta, 2, nzel, which) else apply(beta, 1, nzel, which)
-      } else which
+        nzel <- function(x, actvars) if (any(x)) 
+            actvars[x] else NULL
+        beta <- abs(as.matrix(beta[, actvars])) > 0
+        if (ns == 1) 
+          apply(beta, 2, nzel, actvars) else apply(beta, 1, nzel, actvars)
+      } else actvars
   }
 }
 
@@ -198,3 +198,11 @@ zeromat <- function(nvars, nalam, vnames, stepnames) {
   new("dgCMatrix", Dim = dd, Dimnames = list(vnames, stepnames), 
       x = as.vector(ca), p = as.integer(ia - 1), i = as.integer(ja - 1))
 } 
+
+
+
+## Asymmetric squared error loss
+ercls <- function(r, tau) {
+  abs(tau - (r < 0)) * r^2
+} 
+

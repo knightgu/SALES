@@ -8,7 +8,7 @@
 ## URL http://www.jstatsoft.org/v33/i01/.
 ###############################################################
 
-plot.cv.ernet <- function(x, sign.lambda = 1, ...) {
+plot.cv.cpernet <- function(x, sign.lambda = 1, ...) {
     cvobj <- x
     xlab <- "log(Lambda)"
     if (sign.lambda < 0) xlab <- paste("-", xlab, sep = "")
@@ -22,8 +22,8 @@ plot.cv.ernet <- function(x, sign.lambda = 1, ...) {
     error.bars(sign.lambda * log(cvobj$lambda), cvobj$cvupper, 
       cvobj$cvlower, width = 0.01, col = "darkgrey")
     points(sign.lambda * log(cvobj$lambda), cvobj$cvm, pch = 20, col = "red")
-    axis(side = 3, at = sign.lambda * log(cvobj$lambda), labels = paste(cvobj$nz), 
-        tick = FALSE, line = 0)
+    # axis(side = 3, at = sign.lambda * log(cvobj$lambda), labels = paste(cvobj$nz), 
+    #     tick = FALSE, line = 0)
     abline(v = sign.lambda * log(cvobj$lambda.min), lty = 3)
     abline(v = sign.lambda * log(cvobj$lambda.1se), lty = 3)
     invisible()

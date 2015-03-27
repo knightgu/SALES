@@ -1,33 +1,37 @@
-useDynLib("gcdnet0")
+useDynLib("sparseALS")
 
 import("Matrix")
 
-export(gcdnet,
-cv.gcdnet,
-cv.hsvmpath,
-cv.logitpath,
-cv.sqsvmpath,
-cv.lspath,
-cv.erpath,
-predict.gcdnet,
-predict.hsvmpath,
-predict.logitpath,
-predict.sqsvmpath,
-predict.lspath,
-predict.erpath,
-coef.gcdnet,
-coef.hsvmpath,
-coef.sqsvmpath,
-coef.logitpath,
-coef.lspath,
-coef.erpath)
+export(ernet,
+cv.ernet,
+predict.ernet,
+coef.ernet,
+alspath,
+cv.alspath,
+predict.alspath,
+coef.alspath,
+cpernet,
+cv.cpernet,
+predict.cpernet,
+coef.cpernet,
+cpalspath,
+cv.cpalspath,
+predict.cpalspath,
+coef.cpalspath)
 
-S3method("print","gcdnet")
-S3method("coef","gcdnet")
-S3method("coef","cv.gcdnet")
-S3method("plot","gcdnet")
-S3method("plot","cv.gcdnet")
-S3method("predict","gcdnet")
-S3method("predict","cv.gcdnet")
+S3method("print","ernet")
+S3method("coef","ernet")
+S3method("coef","cv.ernet")
+S3method("plot","ernet")
+S3method("plot","cv.ernet")
+S3method("predict","ernet")
+S3method("predict","cv.ernet")
+S3method("print","cpernet")
+S3method("coef","cpernet")
+S3method("coef","cv.cpernet")
+S3method("predict","cpernet")
+S3method("predict","cv.cpernet")
+S3method("plot","cpernet")
+S3method("plot","cv.cpernet")
 
 

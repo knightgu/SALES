@@ -1,15 +1,10 @@
 Package: sparseALS
-Title: LASSO and elastic net (adaptive) penalized least squares,
-        logistic regression, HHSVM, squared hinge SVM and expectile
-        regression using a fast GCD algorithm.
-Version: 1.0.6
-Date: 2014-04-23
+Title: Elastic net and (adaptive) Lasso penalized asymmetric least squares (ALS) and coupled ALS using the coordinate descent and proximal gradient descent algorithms.
+Version: 1.0.0
+Date: 2015-03-26
 Author: Yuwen Gu <guxxx192@umn.edu>, Yi Yang <yiyang@umn.edu>, Hui Zou <hzou@stat.umn.edu>
 Maintainer: Yuwen Gu <guxxx192@umn.edu>
 Depends: Matrix
-Description: This package implements a coordinate descent algorithm for computing the solution path of the hybrid Huberized support vector machine (HHSVM) and its generalization, including the LASSO and elastic net (adaptive) penalized least squares, logistic regression, HHSVM, squared hinge loss SVM and expectile regression.
+Description: This package implements a coordinate descent algorithm for computing the solution path of the sparse and coupled sparse ALS regressions, including the elastic net and (adaptive) Lasso penalized ALS and coupled ALS regression.
 License: GPL-2
-URL: http://code.google.com/p/gcdnet/
-Packaged: 2014-03-31 18:06:48 UTC; emeryyi
-Repository: CRAN
-Date/Publication: 2011-10-14 08:00:50
+

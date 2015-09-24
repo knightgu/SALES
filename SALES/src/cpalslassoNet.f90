@@ -76,9 +76,13 @@
 ! LICENSE: GNU GPL (version 2 or later)
 ! 
 ! AUTHORS:
-! YUWEN GU (guxxx192@umn.edu), YI YANG (yiyang@umn.edu), HUI ZOU (zouxx019@umn.edu)
+! YUWEN GU (guxxx192@umn.edu), HUI ZOU (zouxx019@umn.edu)
 !   SCHOOL OF STATISTICS, UNIVERSITY OF MINNESOTA
 !
+! REFERENCES:
+!    Gu, Y. and Zou, H. (2015). Analyzing Heteroscedasticity In High-Dimensional Data
+!      Using Asymmetric Least Squares. Manuscript.
+
 ! -------------------------------------------------------------------------------- !
 SUBROUTINE cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, &
 & pfmean, pfscale, pf2mean, pf2scale, dfmax, pmax, nlam, flmin, &
@@ -87,16 +91,16 @@ SUBROUTINE cpalslassoNET(w, tau, lam2, nobs, nvars, x, y, jd, &
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
-  INTEGER :: nobs,nvars,dfmax,pmax,jd(*),nlam,nalam,isd,npass,maxit,jerr,intr
-  INTEGER :: ibeta(pmax),nbeta(nlam),itheta(pmax),ntheta(nlam)
-  DOUBLE PRECISION :: w,tau,lam2,flmin,eps,ulam(nlam),alam(nlam)
-  DOUBLE PRECISION :: x(nobs,nvars),y(nobs)
-  DOUBLE PRECISION :: pfmean(nvars),pfscale(nvars),pf2mean(nvars),pf2scale(nvars)
-  DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam),theta(pmax,nlam),t0(nlam)
+  INTEGER :: nobs, nvars, dfmax, pmax, jd(*), nlam, nalam, isd, npass, maxit, jerr, intr
+  INTEGER :: ibeta(pmax), nbeta(nlam), itheta(pmax), ntheta(nlam)
+  DOUBLE PRECISION :: w, tau, lam2, flmin, eps, ulam(nlam), alam(nlam)
+  DOUBLE PRECISION :: x(nobs, nvars), y(nobs)
+  DOUBLE PRECISION :: pfmean(nvars), pfscale(nvars), pf2mean(nvars), pf2scale(nvars)
+  DOUBLE PRECISION :: beta(pmax, nlam), b0(nlam), theta(pmax, nlam), t0(nlam)
   ! --------- LOCAL DECLARATIONS ---------- !
-  INTEGER :: j,l,nk,nkk,ierr
-  INTEGER, DIMENSION(:), ALLOCATABLE :: ju
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: xmean,xnorm,maj
+  INTEGER :: j, l, nk, nkk, ierr
+  INTEGER,  DIMENSION(:),  ALLOCATABLE :: ju
+  DOUBLE PRECISION,  DIMENSION(:),  ALLOCATABLE :: xmean, xnorm, maj
   ! --------- ALLOCATE VARIABLES ---------- !
   ALLOCATE(ju(1:nvars), STAT=ierr)
   jerr = jerr + ierr
@@ -167,20 +171,20 @@ SUBROUTINE cpalslassoNETpath(w, tau, lam2, maj, nobs, nvars, x, y, &
 
   IMPLICIT NONE     
   ! --------------- INPUT VARIABLES --------------- !
-  INTEGER :: nobs,nvars,dfmax,pmax,nlam,nalam,maxit,npass,jerr,intr
-  INTEGER :: ju(nvars),ibeta(pmax),nbeta(nlam),itheta(pmax),ntheta(nlam)
-  DOUBLE PRECISION :: eps,w,tau,lam2,flmin
-  DOUBLE PRECISION :: x(nobs,nvars),y(nobs),maj(nvars)
-  DOUBLE PRECISION :: pfmean(nvars),pfscale(nvars),ulam(nlam),alam(nlam)
-  DOUBLE PRECISION :: pf2mean(nvars),pf2scale(nvars)
-  DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam),theta(pmax,nlam),t0(nlam)
+  INTEGER :: nobs, nvars, dfmax, pmax, nlam, nalam, maxit, npass, jerr, intr
+  INTEGER :: ju(nvars), ibeta(pmax), nbeta(nlam), itheta(pmax), ntheta(nlam)
+  DOUBLE PRECISION :: eps, w, tau, lam2, flmin
+  DOUBLE PRECISION :: x(nobs, nvars), y(nobs), maj(nvars)
+  DOUBLE PRECISION :: pfmean(nvars), pfscale(nvars), ulam(nlam), alam(nlam)
+  DOUBLE PRECISION :: pf2mean(nvars), pf2scale(nvars)
+  DOUBLE PRECISION :: beta(pmax, nlam), b0(nlam), theta(pmax, nlam), t0(nlam)
   ! ------------- LOCAL DECLARATIONS -------------- !
-  INTEGER, PARAMETER :: mnlam = 6
-  INTEGER :: mnl,i,k,j,l,vrg,ctr,ierr,nib,nith,me
-  INTEGER, DIMENSION (:), ALLOCATABLE :: mmb,mmth
-  DOUBLE PRECISION, PARAMETER :: big = 9.9D30,mfl = 1.0D-06
-  DOUBLE PRECISION :: tmp,bigm,d,dif,oldb,oldth,u,v,al,alf,dl(nobs)
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: b,th,oldbeta,oldtheta,r1,r2
+  INTEGER,  PARAMETER :: mnlam = 6
+  INTEGER :: mnl, i, k, j, l, vrg, ctr, ierr, nib, nith, me
+  INTEGER,  DIMENSION (:),  ALLOCATABLE :: mmb, mmth
+  DOUBLE PRECISION,  PARAMETER :: big = 9.9D30, mfl = 1.0D-06
+  DOUBLE PRECISION :: tmp, bigm, d, dif, oldb, oldth, u, v, al, alf, dl(nobs)
+  DOUBLE PRECISION,  DIMENSION(:),  ALLOCATABLE :: b, th, oldbeta, oldtheta, r1, r2
   ! ----------------- ALLOCATE VARIABLES ------------------ !
   ALLOCATE (b(0:nvars), STAT=jerr)
   ALLOCATE (oldbeta(0:nvars), STAT=ierr)

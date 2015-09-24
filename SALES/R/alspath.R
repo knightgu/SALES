@@ -5,7 +5,7 @@ alspath <- function(x, y, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd,
     storage.mode(y) <- "double"
     storage.mode(x) <- "double"
     if (tau <= 0 || tau >= 1) stop("tau must be in (0,1)")
-	tau <- as.double(tau)
+	  tau <- as.double(tau)
     #################################################################################
     # call Fortran core
     fit <- .Fortran("alslassoNET", tau, lam2, nobs, nvars, x, 

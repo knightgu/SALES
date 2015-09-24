@@ -73,13 +73,12 @@
 ! LICENSE: GNU GPL (version 2 or later)
 ! 
 ! AUTHORS:
-! YUWEN GU (guxxx192@umn.edu), YI YANG (yiyang@umn.edu), HUI ZOU (zouxx019@umn.edu)
+! YUWEN GU (guxxx192@umn.edu), HUI ZOU (zouxx019@umn.edu)
 !   SCHOOL OF STATISTICS, UNIVERSITY OF MINNESOTA
 ! 
 ! REFERENCES:
-!    Yang, Y. and Zou, H. (2012). An Efficient Algorithm for Computing 
-!      The HHSVM and Its Generalizations. Journal of Computational and 
-!      Graphical Statistics, 22, 396-415.
+!    Gu, Y. and Zou, H. (2015). Analyzing Heteroscedasticity In High-Dimensional Data
+!      Using Asymmetric Least Squares. Manuscript.
 
 ! ------------------------------------------------------------------------------------ !
 SUBROUTINE alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
@@ -88,14 +87,14 @@ SUBROUTINE alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
-  INTEGER :: nobs,nvars,dfmax,pmax,nlam,nalam,isd,intr
-  INTEGER :: jd(*),npass,jerr,maxit
-  INTEGER :: ibeta(pmax),nbeta(nlam)
-  DOUBLE PRECISION :: lam2,flmin,eps,tau
-  DOUBLE PRECISION :: x(nobs,nvars),y(nobs)
-  DOUBLE PRECISION :: pf(nvars),pf2(nvars)
-  DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam)
-  DOUBLE PRECISION :: ulam(nlam),alam(nlam)
+  INTEGER :: nobs, nvars, dfmax, pmax, nlam, nalam, isd, intr
+  INTEGER :: jd(*), npass, jerr, maxit
+  INTEGER :: ibeta(pmax), nbeta(nlam)
+  DOUBLE PRECISION :: lam2, flmin, eps, tau
+  DOUBLE PRECISION :: x(nobs, nvars), y(nobs)
+  DOUBLE PRECISION :: pf(nvars), pf2(nvars)
+  DOUBLE PRECISION :: beta(pmax, nlam), b0(nlam)
+  DOUBLE PRECISION :: ulam(nlam), alam(nlam)
   ! -------- LOCAL DECLARATIONS -------- !
   INTEGER :: j,l,nk,ierr
   INTEGER, DIMENSION(:), ALLOCATABLE :: ju
@@ -154,20 +153,20 @@ SUBROUTINE alslassoNETpath(tau, lam2, maj, nobs, nvars, x, y, ju, pf, pf2, dfmax
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
-  INTEGER :: mnl,nobs,nvars,dfmax,pmax,nlam,maxit,nalam,npass,jerr,intr
-  INTEGER :: ju(nvars),m(pmax),nbeta(nlam)
-  DOUBLE PRECISION :: lam2,eps,tau
-  DOUBLE PRECISION :: x(nobs,nvars),y(nobs),maj(nvars)
-  DOUBLE PRECISION :: pf(nvars),pf2(nvars)
-  DOUBLE PRECISION :: beta(pmax,nlam),b0(nlam)
-  DOUBLE PRECISION :: ulam(nlam),alam(nlam)
+  INTEGER :: mnl, nobs, nvars, dfmax, pmax, nlam, maxit, nalam, npass, jerr, intr
+  INTEGER :: ju(nvars), m(pmax), nbeta(nlam)
+  DOUBLE PRECISION :: lam2, eps, tau
+  DOUBLE PRECISION :: x(nobs, nvars), y(nobs), maj(nvars)
+  DOUBLE PRECISION :: pf(nvars), pf2(nvars)
+  DOUBLE PRECISION :: beta(pmax, nlam), b0(nlam)
+  DOUBLE PRECISION :: ulam(nlam), alam(nlam)
   ! -------- LOCAL DECLARATIONS -------- !
-  INTEGER, PARAMETER :: mnlam = 6
-  DOUBLE PRECISION, PARAMETER :: big = 9.9D30, mfl = 1.0D-06
-  DOUBLE PRECISION :: tmp,bigm,d,dif,oldb,u,v,al,alf,flmin,dl(nobs)
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: b,oldbeta,r
-  INTEGER :: i,k,j,l,vrg,ctr,ierr,ni,me
-  INTEGER, DIMENSION(:), ALLOCATABLE :: mm
+  INTEGER,  PARAMETER :: mnlam = 6
+  DOUBLE PRECISION,  PARAMETER :: big = 9.9D30,  mfl = 1.0D-06
+  DOUBLE PRECISION :: tmp, bigm, d, dif, oldb, u, v, al, alf, flmin, dl(nobs)
+  DOUBLE PRECISION,  DIMENSION(:),  ALLOCATABLE :: b, oldbeta, r
+  INTEGER :: i, k, j, l, vrg, ctr, ierr, ni, me
+  INTEGER,  DIMENSION(:),  ALLOCATABLE :: mm
   ! -------- ALLOCATE VARIABLES -------- !
   ALLOCATE(b(0:nvars), STAT=jerr)
   ALLOCATE(oldbeta(0:nvars), STAT=ierr)

@@ -1,6 +1,6 @@
 ! DESCRIPTION: 
 !
-!    These functions are minor modifications from the glmnet package:
+!    These functions are modified from the glmnet package:
 !
 !    Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010). 
 !    Regularization Paths for Generalized Linear Models via Coordinate Descent. 
@@ -8,7 +8,7 @@
 !    URL http://www.jstatsoft.org/v33/i01/.
 !
 ! --------------------------------------------------------------------------
-! standard: An auxiliary function for standardizing x matrix.
+! standard: An auxiliary function for standardizing the design matrix x.
 ! --------------------------------------------------------------------------
 !
 ! USAGE:
@@ -65,11 +65,11 @@ SUBROUTINE standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
-  INTEGER :: nobs,nvars,isd,intr,ju(nvars)
-  DOUBLE PRECISION :: x(nobs,nvars),xmean(nvars),xnorm(nvars),maj(nvars)
+  INTEGER :: nobs, nvars, isd, intr, ju(nvars)
+  DOUBLE PRECISION :: x(nobs, nvars), xmean(nvars), xnorm(nvars), maj(nvars)
   ! -------- LOCAL DECLARATIONS -------- !
   INTEGER :: j
-  DOUBLE PRECISION :: xmsq,xvar
+  DOUBLE PRECISION :: xmsq, xvar
   ! -------- BEGIN PROGRAM -------- !
   IF (intr == 0) THEN
     DO j = 1, nvars

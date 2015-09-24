@@ -1,11 +1,11 @@
 cpernet <- function(x, y, w = 1.0, nlambda = 100L, method = "cper", 
-                  lambda.factor = ifelse(nobs < nvars, 1e-02, 1e-04), 
-                  lambda = NULL, lambda2 = 0, pf.mean = rep(1, nvars), 
-                  pf2.mean = rep(1, nvars), pf.scale = rep(1, nvars),
-                  pf2.scale = rep(1, nvars), exclude, dfmax = nvars + 1, 
-                  pmax = min(dfmax * 1.2, nvars), standardize = TRUE, 
-                  intercept = TRUE, eps = 1e-08, maxit = 1000000L, 
-                  tau = 0.80) {
+                    lambda.factor = ifelse(2 * nobs < nvars, 1e-02, 1e-04), 
+                    lambda = NULL, lambda2 = 0, pf.mean = rep(1, nvars), 
+                    pf2.mean = rep(1, nvars), pf.scale = rep(1, nvars),
+                    pf2.scale = rep(1, nvars), exclude, dfmax = nvars + 1, 
+                    pmax = min(dfmax * 1.2, nvars), standardize = TRUE, 
+                    intercept = TRUE, eps = 1e-08, maxit = 1000000L, 
+                    tau = 0.80) {
     #################################################################################
     ## data setup
     method <- match.arg(method)
@@ -30,7 +30,7 @@ cpernet <- function(x, y, w = 1.0, nlambda = 100L, method = "cper",
     if (length(pf2.scale) != nvars) 
       stop("Size of L2 penalty factors for the scale does not match the number of input variables")
     if (lambda2 < 0) {
-       warning("lambda2 < 0; set to zero")
+       warning("lambda2 < 0; set to zero...")
        lambda2 <- 0
     }
     maxit <- as.integer(maxit)

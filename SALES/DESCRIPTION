@@ -1,8 +1,8 @@
-Package: sparseALS
+Package: sals
 Title: Elastic net and (adaptive) Lasso penalized asymmetric least squares (ALS) and coupled ALS using the coordinate descent and proximal gradient descent algorithms.
 Version: 1.0.0
 Date: 2015-03-26
-Author: Yuwen Gu <guxxx192@umn.edu>, Yi Yang <yiyang@umn.edu>, Hui Zou <hzou@stat.umn.edu>
+Author: Yuwen Gu <guxxx192@umn.edu>, Hui Zou <hzou@stat.umn.edu>
 Maintainer: Yuwen Gu <guxxx192@umn.edu>
 Depends: Matrix
 Description: This package implements a coordinate descent algorithm for computing the solution path of the sparse and coupled sparse ALS regressions, including the elastic net and (adaptive) Lasso penalized ALS and coupled ALS regression.

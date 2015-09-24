@@ -1,7 +1,7 @@
 \name{coef.ernet}
 \alias{coef.ernet}
 \alias{coef.alspath}
-\title{Get coefficients from an "ernet" object.}
+\title{Get coefficients from an ernet object.}
 \description{
 Computes the coefficients or returns a list of the indices of the nonzero coefficients at the requested values for \code{lambda} from a fitted \code{\link{ernet}} object.
 }

@@ -6,7 +6,7 @@ Plots the cross-validated curve, and upper and lower standard deviation
 curves, as a function of the \code{lambda} values used. This function is modified based on the \code{plot.cv.glmnet} function from the \code{glmnet} package.}
 
 \usage{
-\method{plot}{cv.ernet}(x, sign.lambda, ...)
+\method{plot}{cv.ernet}(x, sign.lambda = 1, ...)
 }
 
 \arguments{
@@ -17,14 +17,12 @@ curves, as a function of the \code{lambda} values used. This function is modifie
 
 \details{A plot is produced.}
 
-\author{Yi Yang, Yuwen Gu and Hui Zou\cr
-Maintainer: Yi Yang  <yiyang@umn.edu>}
+\author{Yuwen Gu and Hui Zou\cr
+Maintainer: Yuwen Gu  <guxxx192@umn.edu>}
 \references{
-Friedman, J., Hastie, T., and Tibshirani, R. (2010), "Regularization paths for generalized
-linear models via coordinate descent," \emph{Journal of Statistical Software, 33, 1.}\cr
-\url{http://www.jstatsoft.org/v33/i01/}}
+Friedman, J., Hastie, T., and Tibshirani, R. (2010), "Regularization paths for generalized linear models via coordinate descent," \emph{Journal of Statistical Software, 33, 1.} \url{http://www.jstatsoft.org/v33/i01/}}
 
-\seealso{\code{\link{cv.ernet}}.}
+\seealso{\code{\link{cv.ernet}}}
 
 \keyword{models}
 \keyword{regression}

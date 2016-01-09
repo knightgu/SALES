@@ -1,15 +1,15 @@
-\name{plot.ernet}
-\alias{plot.ernet}
-\title{Plot coefficients from an ernet object}
+\name{plot.cpernet}
+\alias{plot.cpernet}
+\title{Plot coefficients from a \code{cpernet} object}
 \description{
 Produces a coefficient profile plot of the coefficient paths for a
-fitted \code{\link{ernet}} object. This function is modified based on the \code{plot} method in the \code{glmnet} package.
+fitted \code{\link{cpernet}} object. This function is modified based on the \code{plot} method in the \code{glmnet} package.
 }
 \usage{
-\method{plot}{ernet}(x, xvar = c("norm", "lambda"), color = FALSE, label = FALSE, ...)
+\method{plot}{cpernet}(x, xvar = c("norm", "lambda"), color = FALSE, label = FALSE, ...)
 }
 \arguments{
-		\item{x}{fitted \code{\link{ernet}} model}
+		\item{x}{fitted \code{\link{cpernet}} model}
 		\item{xvar}{what is on the x-axis. \code{"norm"} plots against the
 		L1-norm of the coefficients, \code{"lambda"} against the log-lambda
 		sequence.}
@@ -18,7 +18,7 @@ fitted \code{\link{ernet}} object. This function is modified based on the \code{
 		\item{\dots}{other graphical parameters to plot.}
 }
 \details{
-A coefficient profile plot is produced.
+Two coefficient profile plots are produced, one for the mean coefficients and the other for the scale coefficients.
 }
 \author{
 Yuwen Gu and Hui Zou\cr
@@ -31,18 +31,18 @@ n <- 100
 p <- 400
 x <- matrix(rnorm(n*p), n, p)
 y <- rnorm(n)
-tau <- 0.90
+tau <- 0.30
 pf <- abs(rnorm(p))
 pf2 <- abs(rnorm(p))
+w <- 2.0
 lambda2 <- 1
-m1 <- ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
-            pf2 = pf2, standardize = FALSE, intercept = FALSE,
-            lambda2 = lambda2)
-plot(m1)
+m2 <- cpernet(y = y, x = x, w = w, tau = tau, eps = 1e-8, 
+              pf.mean = pf, pf.scale = pf2, intercept = TRUE,
+              standardize = FALSE, lambda2 = lambda2)
+plot(m2)
 }
 
-\seealso{\code{plot.cv.ernet}}
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
+\seealso{\code{plot.cv.cpernet}}
+
 \keyword{models}
 \keyword{regression}

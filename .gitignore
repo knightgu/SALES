@@ -42,7 +42,8 @@ Thumbs.db
 # Rstudio related files #
 ########################
 *.Rhistory
-.Rapp.history
+*.Rapp.history
+*.tar.gz
 
 # Lyx related files #
 ########################

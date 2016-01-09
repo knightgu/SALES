@@ -32,21 +32,33 @@ cv.ernet(x, y, lambda = NULL, pred.loss = "loss",
 		\item{cvlower}{lower curve = \code{cvm-cvsd}.}
 		\item{nzero}{number of non-zero coefficients at each \code{lambda}.}
 		\item{name}{a text string indicating type of measure (for plotting purposes).}
-		\item{ernet.fit}{a fitted \code{\link{gcdnet}} object for the full data.}
+		\item{ernet.fit}{a fitted \code{\link{ernet}} object for the full data.}
 		\item{lambda.min}{The optimal value of \code{lambda} that gives minimum cross validation error \code{cvm}.}
 		\item{lambda.1se}{The largest value of \code{lambda} such that error is within 1 standard error of the minimum.}
 }
 
-\author{Yuwen Gu and Hui Zou\cr
-Maintainer: Yuwen Gu  <guxxx192@umn.edu>}
-\references{
-Friedman, J., Hastie, T., and Tibshirani, R. (2010), "Regularization paths for generalized linear models via coordinate descent," \emph{Journal of Statistical Software, 33, 1.} \url{http://www.jstatsoft.org/v33/i01/}}
-
-
-\seealso{\code{\link{ernet}}, \code{\link{plot.cv.ernet}}, \code{\link{predict.cv.ernet}}, and \code{\link{coef.cv.ernet}} methods.}
-\examples{
-set.seed(2015)
+\author{
+Yuwen Gu and Hui Zou\cr
+Maintainer: Yuwen Gu  <guxxx192@umn.edu>
 }
+
+\seealso{\code{\link{ernet}}}
+
+\examples{
+set.seed(1)
+n <- 100
+p <- 400
+x <- matrix(rnorm(n*p), n, p)
+y <- rnorm(n)
+tau <- 0.90
+pf <- abs(rnorm(p))
+pf2 <- abs(rnorm(p))
+lambda2 <- 1
+m1.cv <- cv.ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
+                  pf2 = pf2, standardize = FALSE, intercept = FALSE,
+                  lambda2 = lambda2)
+}
+
 \keyword{models}
 \keyword{regression}
 

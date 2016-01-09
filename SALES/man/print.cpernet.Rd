@@ -1,9 +1,9 @@
 \name{print.cpernet}
 \alias{print.cpernet}
-\title{Print an "cpernet"" object}
+\title{Print a \code{cpernet} object}
 
 \description{
-Print a summary of the cpernet path at each step along the path.
+Print a summary of the \code{cpernet} path at each step along the path.
 }
 
 \usage{
@@ -12,7 +12,7 @@ Print a summary of the cpernet path at each step along the path.
 
 \arguments{
   \item{x}{fitted \code{\link{cpernet}} object.}
-  \item{digits}{significant digits in printout.}
+  \item{digits}{significant digits in the output.}
   \item{\dots}{additional print arguments.}
 }
 
@@ -28,10 +28,21 @@ Yuwen Gu and Hui Zou\cr
 Maintainer: Yuwen Gu <guxxx192@umn.edu>
 }
 
-\references{
-Friedman, J., Hastie, T., and Tibshirani, R. (2010), "Regularization paths for generalized
-linear models via coordinate descent," \emph{Journal of Statistical Software, 33, 1.}\cr
-\url{http://www.jstatsoft.org/v33/i01/}
+\examples{
+set.seed(1)
+n <- 100
+p <- 400
+x <- matrix(rnorm(n*p), n, p)
+y <- rnorm(n)
+tau <- 0.30
+pf <- abs(rnorm(p))
+pf2 <- abs(rnorm(p))
+w <- 2.0
+lambda2 <- 1
+m2 <- cpernet(y = y, x = x, w = w, tau = tau, eps = 1e-8, 
+              pf.mean = pf, pf.scale = pf2,
+              standardize = FALSE, lambda2 = lambda2)
+print(m2)
 }
 
 \keyword{models}

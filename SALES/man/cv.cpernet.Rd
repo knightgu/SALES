@@ -1,11 +1,11 @@
 \name{cv.cpernet}
 \alias{cv.cpernet}
-\title{Cross-validation for cpernet}
-\description{Does k-fold cross-validation for cpernet, produces a plot, and returns a value for \code{lambda}. This function based on the \code{cv} function from the \code{glmnet} package.}
+\title{Cross-validation for \code{cpernet}}
+\description{Does k-fold cross-validation for \code{cpernet}, produces a plot, and returns a value for \code{lambda}. This function is based on the \code{cv} function from the \code{glmnet} package.}
 
 \usage{
-cv.cpernet <- function(x, y, w = 1.0, lambda = NULL, pred.loss = "loss",
-                       nfolds = 5, foldid, tau = 0.8, ...)
+cv.cpernet(x, y, w = 1.0, lambda = NULL, pred.loss = "loss",
+           nfolds = 5, foldid, tau = 0.8, ...)
 }
 
 \arguments{
@@ -31,21 +31,33 @@ cv.cpernet <- function(x, y, w = 1.0, lambda = NULL, pred.loss = "loss",
 		\item{cvlower}{lower curve = \code{cvm-cvsd}.}
 		\item{nzero}{a list of two components, each representing the number of non-zero coefficients at each \code{lambda} in the mean and scale part.}
 		\item{name}{a text string indicating type of measure (for plotting purposes).}
-		\item{cpernet.fit}{a fitted \code{\link{gcdnet}} object for the full data.}
+		\item{cpernet.fit}{a fitted \code{\link{cpernet}} object for the full data.}
 		\item{lambda.min}{The optimal value of \code{lambda} that gives minimum cross validation error \code{cvm}.}
 		\item{lambda.1se}{The largest value of \code{lambda} such that error is within 1 standard error of the minimum.}
 }
 
-\author{Yuwen Gu and Hui Zou\cr
+\author{
+Yuwen Gu and Hui Zou\cr
 Maintainer: Yuwen Gu  <guxxx192@umn.edu>
 }
-\references{
-Friedman, J., Hastie, T., and Tibshirani, R. (2010), "Regularization paths for generalized linear models via coordinate descent," \emph{Journal of Statistical Software, 33, 1.} \url{http://www.jstatsoft.org/v33/i01/}
-}
 
-\seealso{\code{\link{cpernet}}, \code{\link{plot.cv.cpernet}}, \code{\link{predict.cv.cpernet}}, and \code{\link{coef.cv.cpernet}} methods.}
+\seealso{
+\code{\link{cpernet}}, \code{\link{coef.cv.cpernet}}, \code{\link{predict.cv.cpernet}}, \code{\link{plot.cv.cpernet}}
+}
 \examples{
-set.seed(2015)
+set.seed(1)
+n <- 100
+p <- 400
+x <- matrix(rnorm(n*p), n, p)
+y <- rnorm(n)
+tau <- 0.30
+pf <- abs(rnorm(p))
+pf2 <- abs(rnorm(p))
+w <- 2.0
+lambda2 <- 1
+m2.cv <- cv.cpernet(y = y, x = x, w = w, tau = tau, eps = 1e-8, 
+              pf.mean = pf, pf.scale = pf2,
+              standardize = FALSE, lambda2 = lambda2)
 }
 \keyword{models}
 \keyword{regression}

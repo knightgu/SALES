@@ -77,8 +77,8 @@
 !   SCHOOL OF STATISTICS, UNIVERSITY OF MINNESOTA
 ! 
 ! REFERENCES:
-!    Gu, Y. and Zou, H. (2015). Analyzing Heteroscedasticity In High-Dimensional Data
-!      Using Asymmetric Least Squares. Manuscript.
+!    Gu, Y. and Zou, H. (Preprint). High-dimensional Generalizations of Asymmetric Least
+!      Squares and Their Applications. Annals of Statistics.
 
 ! ------------------------------------------------------------------------------------ !
 SUBROUTINE alslassoNET(tau, lam2, nobs, nvars, x, y, jd, pf, pf2, dfmax, pmax, &

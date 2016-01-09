@@ -1,18 +1,18 @@
-\name{predict.ernet}
-\alias{predict.ernet}
-\alias{predict.alspath}
-\title{Make predictions from an \code{ernet} object.}
+\name{predict.cpernet}
+\alias{predict.cpernet}
+\alias{predict.cpalspath}
+\title{Make predictions from a \code{cpernet} object.}
 
 \description{
-Similar to other predict methods, this functions predicts fitted values from a fitted \code{\link{ernet}} object.
+Similar to other predict methods, this function predicts fitted values from a \code{\link{cpernet}} object.
 }
 
 \usage{
-\method{predict}{ernet}(object, newx, s = NULL, type = "response", ...)
+\method{predict}{cpernet}(object, newx, s = NULL, type = "response", ...)
 }
 
 \arguments{
-		\item{object}{fitted \code{\link{ernet}} model object.}
+		\item{object}{fitted \code{\link{cpernet}} model object.}
     
 		\item{newx}{matrix of new values for \code{x} at which predictions are to be made. NOTE: \code{newx} must be a matrix, \code{predict} function does not accept a vector or other formats of \code{newx}.}
     
@@ -33,7 +33,24 @@ Yuwen Gu and Hui Zou\cr
 Maintainer: Yuwen Gu  <guxxx192@umn.edu>
 }
 
-\seealso{\code{\link{coef.ernet}}}
+\examples{
+set.seed(1)
+n <- 100
+p <- 400
+x <- matrix(rnorm(n*p), n, p)
+y <- rnorm(n)
+tau <- 0.30
+pf <- abs(rnorm(p))
+pf2 <- abs(rnorm(p))
+w <- 2.0
+lambda2 <- 1
+m2 <- cpernet(y = y, x = x, w = w, tau = tau, eps = 1e-8, 
+              pf.mean = pf, pf.scale = pf2,
+              standardize = FALSE, lambda2 = lambda2)
+predict(m2, newx = x, s = m2$lambda[50])
+}
+
+\seealso{\code{\link{coef.cpernet}}}
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

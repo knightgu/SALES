@@ -1,10 +1,10 @@
-Package: sals
-Title: Elastic net and (adaptive) Lasso penalized asymmetric least squares (ALS) and coupled ALS using the coordinate descent and proximal gradient descent algorithms.
+Package: sales
+Title: Elastic Net and (Adaptive) Lasso Penalized Sparse Asymmetric Least Squares (SALES) and Coupled Sparse Asymmetric Least Squares (COSALES) using the Coordinate Descent and Proximal Gradient Descent Algorithms
 Version: 1.0.0
-Date: 2015-03-26
-Author: Yuwen Gu <guxxx192@umn.edu>, Hui Zou <hzou@stat.umn.edu>
+Date: 2015-12-26
+Author: Yuwen Gu <guxxx192@umn.edu>, Hui Zou <zouxx019@umn.edu>
 Maintainer: Yuwen Gu <guxxx192@umn.edu>
 Depends: Matrix
-Description: This package implements a coordinate descent algorithm for computing the solution path of the sparse and coupled sparse ALS regressions, including the elastic net and (adaptive) Lasso penalized ALS and coupled ALS regression.
+Description: The SALES package implements a coordinate descent algorithm for computing the solution path of the sparse and coupled sparse asymmetric least squares, including the elastic net and (adaptive) Lasso penalized SALES and COSALES regressions.
 License: GPL-2
 

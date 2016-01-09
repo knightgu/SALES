@@ -1,15 +1,15 @@
-\name{coef.ernet}
-\alias{coef.ernet}
-\alias{coef.alspath}
-\title{Get coefficients from an ernet object}
+\name{coef.cpernet}
+\alias{coef.cpernet}
+\alias{coef.cpalspath}
+\title{Get coefficients from a \code{cpernet} object}
 \description{
-Computes the coefficients or returns a list of the indices of the nonzero coefficients at the requested values for \code{lambda} from a fitted \code{\link{ernet}} object.
+Computes the coefficients or returns a list of the indices of the nonzero coefficients at the requested values for \code{lambda} from a fitted \code{\link{cpernet}} object.
 }
 \usage{
-\method{coef}{ernet}(object, s = NULL, type = c("coefficients", "nonzero"), ...)
+\method{coef}{cpernet}(object, s = NULL, type = c("coefficients", "nonzero"), ...)
 }
 \arguments{
-		\item{object}{fitted \code{\link{ernet}} model object.}
+		\item{object}{fitted \code{\link{cpernet}} model object.}
     
 		\item{s}{value(s) of the penalty parameter \code{lambda} at which
 		predictions are to be made. Default is the entire sequence used to
@@ -37,19 +37,20 @@ n <- 100
 p <- 400
 x <- matrix(rnorm(n*p), n, p)
 y <- rnorm(n)
-tau <- 0.90
+tau <- 0.30
 pf <- abs(rnorm(p))
 pf2 <- abs(rnorm(p))
+w <- 2.0
 lambda2 <- 1
-m1 <- ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
-            pf2 = pf2, standardize = FALSE, intercept = FALSE,
-            lambda2 = lambda2)
-as.vector(coef(m1, s = m1$lambda[5]))
+m2 <- cpernet(y = y, x = x, w = w, tau = tau, eps = 1e-8, 
+              pf.mean = pf, pf.scale = pf2, intercept = TRUE,
+              standardize = FALSE, lambda2 = lambda2)
+
+mean.coef <- as.vector(coef(m2, s = m2$lambda[50])[[1]])
+scale.coef <- as.vector(coef(m2, s = m2$lambda[50])[[2]])
 }
 
-\seealso{\code{\link{predict.ernet}}}
+\seealso{\code{\link{predict.cpernet}}}
 
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{models}
 \keyword{regression}

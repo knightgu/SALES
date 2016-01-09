@@ -1,17 +1,18 @@
 \name{ernet}
 \alias{ernet}
-\title{Regularization paths for the sparse asymmetric least squares regression (i.e., sparse expectile regression)}
+\title{Regularization paths for the sparse asymmetric least squares (SALES) regression (or the sparse expectile regression)}
 
-\description{Fits regularization paths for the Lasso or elastic net penalized asymmetric least squares regression (i.e., sparse expectile regression) at a sequence of regularization parameters.
+\description{Fits regularization paths for the Lasso or elastic net penalized asymmetric least squares regression at a sequence of regularization parameters.
 }
 
 \usage{
 ernet(x, y, nlambda = 100L, method = "er", 
-lambda.factor = ifelse(nobs < nvars, 1e-02, 1e-04), 
-lambda = NULL, lambda2 = 0, pf = rep(1, nvars), pf2 = rep(1, nvars),
-exclude, dfmax = nvars + 1, pmax = min(dfmax * 1.2, nvars), 
-standardize = TRUE, intercept = TRUE, eps = 1e-08, maxit = 1000000L,
-tau = 0.5)
+      lambda.factor = ifelse(nobs < nvars, 1e-02, 1e-04), 
+      lambda = NULL, lambda2 = 0, pf = rep(1, nvars), 
+      pf2 = rep(1, nvars), exclude, dfmax = nvars + 1, 
+      pmax = min(dfmax * 1.2, nvars), standardize = TRUE, 
+      intercept = TRUE, eps = 1e-08, maxit = 1000000L, 
+      tau = 0.5)
 }
 
 \arguments{
@@ -51,7 +52,7 @@ tau = 0.5)
 }
 
 \details{
-Note that the objective function in \code{ernet} is \deqn{ASEL(y-X%*%beta,tau))/N + lambda1*|beta| + 0.5*lambda2*beta^2,} where ASEL denotes the asymmetric squared error loss and the penalty is a combination of weighted L1 and L2 terms.
+Note that the objective function in \code{ernet} is \deqn{\Psi_{\tau}(y-X\beta))/N + \lambda_{1}*|\beta| + 0.5*\lambda_{2}*|\beta|^2,}{\Psi\tau(y-X\beta))/N + \lambda1*|\beta| + 0.5*\lambda2*||\beta||^2,} where \eqn{\Psi_{\tau}}{\Psi\tau} the asymmetric squared error loss and the penalty is a combination of weighted L1 and L2 terms.
 
 For faster computation, if the algorithm is not converging or running slow, consider increasing \code{eps}, decreasing \code{nlambda}, or increasing \code{lambda.factor} before increasing \code{maxit}.
 }
@@ -72,6 +73,10 @@ An object with S3 class \code{\link{ernet}}.
 \author{Yuwen Gu and Hui Zou\cr
 Maintainer: Yuwen Gu <guxxx192@umn.edu>}
 
+\references{
+Gu, Y. and Zou, H. (Preprint), "High-dimensional Generalizations of Asymmetric Least Squares Regression and Their Applications". \emph{Annals of Statistics}.\cr
+}
+
 \seealso{\code{plot.ernet}}
 
 \examples{
@@ -84,8 +89,8 @@ tau <- 0.90
 pf <- abs(rnorm(p))
 pf2 <- abs(rnorm(p))
 lambda2 <- 1
-m1 <- ernet(y = y, x = x, tau = tau, eps = 1e-14, pf = pf,
-            pf2 = pf2, standardize = FALSE,
+m1 <- ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
+            pf2 = pf2, standardize = FALSE, intercept = FALSE, 
             lambda2 = lambda2)
 }
 

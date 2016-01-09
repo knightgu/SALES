@@ -1,9 +1,9 @@
 \name{print.ernet}
 \alias{print.ernet}
-\title{Print an "ernet"" object}
+\title{Print an \code{ernet} object}
 
 \description{
-Print a summary of the ernet path at each step along the path.
+Print a summary of the \code{ernet} path at each step along the path.
 }
 
 \usage{
@@ -12,7 +12,7 @@ Print a summary of the ernet path at each step along the path.
 
 \arguments{
   \item{x}{fitted \code{\link{ernet}} object.}
-  \item{digits}{significant digits in printout.}
+  \item{digits}{significant digits in the output.}
   \item{\dots}{additional print arguments.}
 }
 
@@ -29,10 +29,20 @@ Yuwen Gu and Hui Zou\cr
 Maintainer: Yuwen Gu <guxxx192@umn.edu>
 }
 
-\references{
-Friedman, J., Hastie, T., and Tibshirani, R. (2010), "Regularization paths for generalized
-linear models via coordinate descent," \emph{Journal of Statistical Software, 33, 1.}\cr
-\url{http://www.jstatsoft.org/v33/i01/}
+\examples{
+set.seed(1)
+n <- 100
+p <- 400
+x <- matrix(rnorm(n*p), n, p)
+y <- rnorm(n)
+tau <- 0.90
+pf <- abs(rnorm(p))
+pf2 <- abs(rnorm(p))
+lambda2 <- 1
+m1 <- ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
+            pf2 = pf2, standardize = FALSE, intercept = FALSE, 
+            lambda2 = lambda2)
+print(m1)
 }
 
 \keyword{models}

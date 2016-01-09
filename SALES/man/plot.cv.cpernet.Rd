@@ -1,16 +1,16 @@
-\name{plot.cv.ernet}
-\alias{plot.cv.ernet}
-\title{Plot the cross-validated curve produced by \code{cv.ernet}}
+\name{plot.cv.cpernet}
+\alias{plot.cv.cpernet}
+\title{Plot the cross-validated curve produced by \code{cv.cpernet}}
 \description{
 Plots the cross-validated curve, and upper and lower standard deviation
 curves, as a function of the \code{lambda} values used. This function is modified based on the \code{plot.cv.glmnet} function from the \code{glmnet} package.}
 
 \usage{
-\method{plot}{cv.ernet}(x, sign.lambda = 1, ...)
+\method{plot}{cv.cpernet}(x, sign.lambda = 1, ...)
 }
 
 \arguments{
-	\item{x}{fitted \code{\link{cv.ernet}} object}
+	\item{x}{fitted \code{\link{cv.cpernet}} object}
 	\item{sign.lambda}{either plot against \code{log(lambda)} (default) or its negative if \code{sign.lambda=-1}.}
 	\item{\dots}{other graphical parameters to plot}
 }
@@ -26,17 +26,18 @@ n <- 100
 p <- 400
 x <- matrix(rnorm(n*p), n, p)
 y <- rnorm(n)
-tau <- 0.90
+tau <- 0.30
 pf <- abs(rnorm(p))
 pf2 <- abs(rnorm(p))
+w <- 2.0
 lambda2 <- 1
-m1.cv <- cv.ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
-            pf2 = pf2, standardize = FALSE, intercept = FALSE, 
-            lambda2 = lambda2)
-plot(m1.cv)
+m2.cv <- cv.cpernet(y = y, x = x, w = w, tau = tau, eps = 1e-8, 
+              pf.mean = pf, pf.scale = pf2,
+              standardize = FALSE, lambda2 = lambda2)
+plot(m2.cv)
 }
 
-\seealso{\code{\link{cv.ernet}}}
+\seealso{\code{\link{cv.cpernet}}}
 
 \keyword{models}
 \keyword{regression}

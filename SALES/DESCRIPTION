@@ -5,6 +5,9 @@ Date: 2015-12-26
 Author: Yuwen Gu <guxxx192@umn.edu>, Hui Zou <zouxx019@umn.edu>
 Maintainer: Yuwen Gu <guxxx192@umn.edu>
 Depends: Matrix
+Imports: grDevices, graphics, stats, methods
 Description: The SALES package implements a coordinate descent algorithm for computing the solution path of the sparse and coupled sparse asymmetric least squares, including the elastic net and (adaptive) Lasso penalized SALES and COSALES regressions.
 License: GPL-2
+Repository: CRAN
+NeedsCompilation: yes
 

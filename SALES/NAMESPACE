@@ -1,6 +1,10 @@
 useDynLib("sales")
 
 import("Matrix")
+importFrom("grDevices", "gray.colors")
+importFrom("graphics", "abline", "axis", "matplot", "points", "segments", "text")
+importFrom("stats", "approx", "coef", "predict")
+importFrom("methods", "new")
 
 export(ernet,
 cv.ernet,

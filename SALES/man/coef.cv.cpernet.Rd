@@ -1,6 +1,6 @@
 \name{coef.cv.cpernet}
 \alias{coef.cv.cpernet}
-\title{Get coefficients from a \code{cv.cpernet} object}
+\title{Get coefficients from a cv.cpernet object}
 \description{
 This function gets coefficients from a cross-validated cpernet model,
 using the fitted \code{cv.cpernet} object, and the optimal value
@@ -46,7 +46,7 @@ as.vector(coef(m2.cv, s = "lambda.min")$beta)
 as.vector(coef(m2.cv, s = "lambda.min")$theta)
 }
 
-\seealso{\code{\link{predict.cv.cpernet}}} 
+\seealso{\code{\link{cv.cpernet}}, \code{\link{predict.cv.cpernet}}} 
 
 \keyword{models}
 \keyword{regression}

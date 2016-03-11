@@ -1,15 +1,12 @@
-useDynLib("sales")
+useDynLib("SALES")
 
 import("Matrix")
 importFrom("grDevices", "gray.colors")
-importFrom("graphics", "abline", "axis", "matplot", "points", "segments", "text")
+importFrom("graphics", "abline", "axis", "matplot", "points", "segments", "text", "par")
 importFrom("stats", "approx", "coef", "predict")
 importFrom("methods", "new")
 
-export(ernet,
-cv.ernet,
-cpernet,
-cv.cpernet)
+export(ernet, cv.ernet, cpernet, cv.cpernet)
 
 S3method("print","ernet")
 S3method("coef","ernet")

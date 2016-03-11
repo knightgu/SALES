@@ -1,10 +1,10 @@
 \name{predict.cpernet}
 \alias{predict.cpernet}
 \alias{predict.cpalspath}
-\title{Make predictions from a \code{cpernet} object.}
+\title{Make predictions from a cpernet object}
 
 \description{
-Similar to other predict methods, this function predicts fitted values from a \code{\link{cpernet}} object.
+Similar to other predict methods, this function predicts fitted values from a cpernet object.
 }
 
 \usage{
@@ -50,9 +50,7 @@ m2 <- cpernet(y = y, x = x, w = w, tau = tau, eps = 1e-8,
 predict(m2, newx = x, s = m2$lambda[50])
 }
 
-\seealso{\code{\link{coef.cpernet}}}
+\seealso{\code{\link{cpernet}}, \code{\link{coef.cpernet}}}
 
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{models}
 \keyword{regression}

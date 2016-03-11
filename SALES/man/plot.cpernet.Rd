@@ -1,9 +1,9 @@
 \name{plot.cpernet}
 \alias{plot.cpernet}
-\title{Plot coefficients from a \code{cpernet} object}
+\title{Plot coefficients from a cpernet object}
 \description{
 Produces a coefficient profile plot of the coefficient paths for a
-fitted \code{\link{cpernet}} object. This function is modified based on the \code{plot} method in the \code{glmnet} package.
+fitted cpernet object. This function is modified based on the \code{plot} method in the \code{glmnet} package.
 }
 \usage{
 \method{plot}{cpernet}(x, xvar = c("norm", "lambda"), color = FALSE, label = FALSE, ...)
@@ -42,7 +42,7 @@ m2 <- cpernet(y = y, x = x, w = w, tau = tau, eps = 1e-8,
 plot(m2)
 }
 
-\seealso{\code{plot.cv.cpernet}}
+\seealso{\code{\link{plot.cv.cpernet}}}
 
 \keyword{models}
 \keyword{regression}

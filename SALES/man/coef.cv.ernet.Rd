@@ -1,6 +1,6 @@
 \name{coef.cv.ernet}
 \alias{coef.cv.ernet}
-\title{Get coefficients from a \code{cv.ernet} object}
+\title{Get coefficients from a cv.ernet object}
 \description{
 This function gets coefficients from a cross-validated ernet model,
 using the fitted \code{cv.ernet} object, and the optimal value

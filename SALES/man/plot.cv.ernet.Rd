@@ -1,6 +1,6 @@
 \name{plot.cv.ernet}
 \alias{plot.cv.ernet}
-\title{Plot the cross-validated curve produced by \code{cv.ernet}}
+\title{Plot the cross-validated curve produced by cv.ernet}
 \description{
 Plots the cross-validated curve, and upper and lower standard deviation
 curves, as a function of the \code{lambda} values used. This function is modified based on the \code{plot.cv.glmnet} function from the \code{glmnet} package.}

@@ -1,9 +1,9 @@
 \name{print.ernet}
 \alias{print.ernet}
-\title{Print an \code{ernet} object}
+\title{Print an ernet object}
 
 \description{
-Print a summary of the \code{ernet} path at each step along the path.
+Print a summary of the ernet path at each step along the path.
 }
 
 \usage{

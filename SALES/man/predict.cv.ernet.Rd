@@ -1,6 +1,6 @@
 \name{predict.cv.ernet}
 \alias{predict.cv.ernet}
-\title{make predictions from a \code{cv.ernet} object.}
+\title{make predictions from a cv.ernet object}
 \description{
 This function makes predictions from a cross-validated ernet model,
 using the fitted \code{cv.ernet} object, and the optimal value

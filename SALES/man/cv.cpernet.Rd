@@ -1,6 +1,6 @@
 \name{cv.cpernet}
 \alias{cv.cpernet}
-\title{Cross-validation for \code{cpernet}}
+\title{Cross-validation for cpernet}
 \description{Does k-fold cross-validation for \code{cpernet}, produces a plot, and returns a value for \code{lambda}. This function is based on the \code{cv} function from the \code{glmnet} package.}
 
 \usage{
@@ -41,9 +41,8 @@ Yuwen Gu and Hui Zou\cr
 Maintainer: Yuwen Gu  <guxxx192@umn.edu>
 }
 
-\seealso{
-\code{\link{cpernet}}, \code{\link{coef.cv.cpernet}}, \code{\link{predict.cv.cpernet}}, \code{\link{plot.cv.cpernet}}
-}
+\seealso{\code{\link{cpernet}}}
+
 \examples{
 set.seed(1)
 n <- 100

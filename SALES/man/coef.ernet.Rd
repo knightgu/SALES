@@ -3,7 +3,7 @@
 \alias{coef.alspath}
 \title{Get coefficients from an ernet object}
 \description{
-Computes the coefficients or returns a list of the indices of the nonzero coefficients at the requested values for \code{lambda} from a fitted \code{\link{ernet}} object.
+Computes the coefficients or returns a list of the indices of the nonzero coefficients at the requested values for \code{lambda} from a fitted ernet object.
 }
 \usage{
 \method{coef}{ernet}(object, s = NULL, type = c("coefficients", "nonzero"), ...)
@@ -47,9 +47,7 @@ m1 <- ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
 as.vector(coef(m1, s = m1$lambda[5]))
 }
 
-\seealso{\code{\link{predict.ernet}}}
+\seealso{\code{\link{ernet}}, \code{\link{predict.ernet}}}
 
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{models}
 \keyword{regression}

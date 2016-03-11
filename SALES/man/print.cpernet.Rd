@@ -1,6 +1,6 @@
 \name{print.cpernet}
 \alias{print.cpernet}
-\title{Print a \code{cpernet} object}
+\title{Print a cpernet object}
 
 \description{
 Print a summary of the \code{cpernet} path at each step along the path.

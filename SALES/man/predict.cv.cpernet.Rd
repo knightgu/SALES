@@ -1,6 +1,6 @@
 \name{predict.cv.cpernet}
 \alias{predict.cv.cpernet}
-\title{make predictions from a \code{cv.cpernet} object.}
+\title{make predictions from a cv.cpernet object}
 \description{
 This function makes predictions from a cross-validated cpernet model,
 using the fitted \code{cv.cpernet} object, and the optimal value

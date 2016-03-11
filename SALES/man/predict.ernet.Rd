@@ -1,10 +1,10 @@
 \name{predict.ernet}
 \alias{predict.ernet}
 \alias{predict.alspath}
-\title{Make predictions from an \code{ernet} object.}
+\title{Make predictions from an ernet object}
 
 \description{
-Similar to other predict methods, this functions predicts fitted values from a fitted \code{\link{ernet}} object.
+Similar to other predict methods, this functions predicts fitted values from a fitted ernet object.
 }
 
 \usage{
@@ -33,7 +33,7 @@ Yuwen Gu and Hui Zou\cr
 Maintainer: Yuwen Gu  <guxxx192@umn.edu>
 }
 
-\seealso{\code{\link{coef.ernet}}}
+\seealso{\code{\link{ernet}}, \code{\link{coef.ernet}}}
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

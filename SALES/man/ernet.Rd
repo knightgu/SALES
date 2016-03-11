@@ -77,7 +77,7 @@ Maintainer: Yuwen Gu <guxxx192@umn.edu>}
 Gu, Y. and Zou, H. (Preprint), "High-dimensional Generalizations of Asymmetric Least Squares Regression and Their Applications". \emph{Annals of Statistics}.\cr
 }
 
-\seealso{\code{plot.ernet}}
+\seealso{\code{\link{plot.ernet}}}
 
 \examples{
 set.seed(1)

@@ -17,7 +17,7 @@ cpalspath <- function(x, y, w, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, j
         maxit, nalam = integer(1), b0 = double(nlam), beta = double(pmax * nlam), 
         ibeta = integer(pmax), nbeta = integer(nlam), t0 = double(nlam), 
         theta = double(pmax * nlam), itheta = integer(pmax), ntheta = integer(nlam), 
-        alam = double(nlam), npass = integer(1), jerr = integer(1), PACKAGE = "sales")
+        alam = double(nlam), npass = integer(1), jerr = integer(1), PACKAGE = "SALES")
     #################################################################################
     # output
     outlist <- getoutput(fit, maxit, pmax, nvars, vnames)

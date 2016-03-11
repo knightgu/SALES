@@ -3,7 +3,7 @@
 \title{Plot coefficients from an ernet object}
 \description{
 Produces a coefficient profile plot of the coefficient paths for a
-fitted \code{\link{ernet}} object. This function is modified based on the \code{plot} method in the \code{glmnet} package.
+fitted ernet object. This function is modified based on the \code{plot} method in the \code{glmnet} package.
 }
 \usage{
 \method{plot}{ernet}(x, xvar = c("norm", "lambda"), color = FALSE, label = FALSE, ...)
@@ -41,8 +41,7 @@ m1 <- ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
 plot(m1)
 }
 
-\seealso{\code{plot.cv.ernet}}
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
+\seealso{\code{\link{plot.cv.ernet}}}
+
 \keyword{models}
 \keyword{regression}

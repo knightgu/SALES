@@ -1,9 +1,9 @@
 \name{coef.cpernet}
 \alias{coef.cpernet}
 \alias{coef.cpalspath}
-\title{Get coefficients from a \code{cpernet} object}
+\title{Get coefficients from a cpernet object}
 \description{
-Computes the coefficients or returns a list of the indices of the nonzero coefficients at the requested values for \code{lambda} from a fitted \code{\link{cpernet}} object.
+Computes the coefficients or returns a list of the indices of the nonzero coefficients at the requested values for \code{lambda} from a fitted cpernet object.
 }
 \usage{
 \method{coef}{cpernet}(object, s = NULL, type = c("coefficients", "nonzero"), ...)
@@ -50,7 +50,7 @@ mean.coef <- as.vector(coef(m2, s = m2$lambda[50])[[1]])
 scale.coef <- as.vector(coef(m2, s = m2$lambda[50])[[2]])
 }
 
-\seealso{\code{\link{predict.cpernet}}}
+\seealso{\code{\link{cpernet}}, \code{\link{predict.cpernet}}}
 
 \keyword{models}
 \keyword{regression}

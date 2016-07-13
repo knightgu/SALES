@@ -38,13 +38,6 @@ Thumbs.db
 *.out
 *.snm
 
-
-# Rstudio related files #
-########################
-*.Rhistory
-*.Rapp.history
-*.tar.gz
-
 # Lyx related files #
 ########################
 *.lyx
@@ -53,3 +46,12 @@ Thumbs.db
 # TextEdit related files #
 ########################
 *.rtf
+
+# Rstudio related files #
+########################
+*.Rhistory
+*.Rapp.history
+*.tar.gz
+*.Rproj
+*.RData
+.Rproj.user

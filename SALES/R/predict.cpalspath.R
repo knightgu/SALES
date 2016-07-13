@@ -1,4 +1,6 @@
-predict.cpalspath <- function(object, newx, s = NULL, 
+#' @export
+#'
+predict.cpalspath <- function(object, newx, s = NULL,
     type = c("response", "scale"), ...) {
     type <- match.arg(type)
     b0 <- t(as.matrix(object$b0))
@@ -27,4 +29,4 @@ predict.cpalspath <- function(object, newx, s = NULL,
     # nfit <- list(mean = as.matrix(as.matrix(cbind2(1, newx)) %*% nbeta),
     #   scale = as.matrix(as.matrix(cbind2(1, newx)) %*% nbeta))
     # nfit
-} 
+}

@@ -1,4 +1,6 @@
-coef.cpalspath <- function(object, s = NULL, type = 
+#' @importFrom methods rbind2
+#' @export
+coef.cpalspath <- function(object, s = NULL, type =
     c("coefficients", "nonzero"), ...) {
     type <- match.arg(type)
     b0 <- t(as.matrix(object$b0))
@@ -25,4 +27,4 @@ coef.cpalspath <- function(object, s = NULL, type =
     if (type == "nonzero") # return locations of nonzero coefficients for each lambda
       return(list(nzbeta = nonzero(nbeta[-1, , drop = FALSE], bystep = TRUE),
         nztheta = nonzero(ntheta[-1, , drop = FALSE], bystep = TRUE)))
-} 
+}

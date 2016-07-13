@@ -1,4 +1,6 @@
-alspath <- function(x, y, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd, 
+#' @useDynLib SALES
+#'
+alspath <- function(x, y, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd,
                     pf, pf2, maxit, lam2, tau, nobs, nvars, vnames) {
     #################################################################################
     # data setup
@@ -8,11 +10,11 @@ alspath <- function(x, y, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd,
 	  tau <- as.double(tau)
     #################################################################################
     # call Fortran core
-    fit <- .Fortran("alslassoNET", tau, lam2, nobs, nvars, x, 
-        y, jd, pf, pf2, dfmax, pmax, nlam, flmin, ulam, 
-        eps, isd, intr, maxit, nalam = integer(1), b0 = double(nlam), 
-        beta = double(pmax * nlam), ibeta = integer(pmax), nbeta = integer(nlam), 
-        alam = double(nlam), npass = integer(1), jerr = integer(1), 
+    fit <- .Fortran("alslassoNET", tau, lam2, nobs, nvars, x,
+        y, jd, pf, pf2, dfmax, pmax, nlam, flmin, ulam,
+        eps, isd, intr, maxit, nalam = integer(1), b0 = double(nlam),
+        beta = double(pmax * nlam), ibeta = integer(pmax), nbeta = integer(nlam),
+        alam = double(nlam), npass = integer(1), jerr = integer(1),
         PACKAGE = "SALES")
     #################################################################################
     # output
@@ -20,4 +22,4 @@ alspath <- function(x, y, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd,
     outlist <- c(outlist, list(npasses = fit$npass, jerr = fit$jerr))
     class(outlist) <- c("alspath")
     outlist
-} 
+}

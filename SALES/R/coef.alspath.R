@@ -1,4 +1,6 @@
-coef.alspath <- function(object, s = NULL, type = 
+#' @importFrom methods rbind2
+#' @export
+coef.alspath <- function(object, s = NULL, type =
     c("coefficients", "nonzero"), ...) {
     type <- match.arg(type)
     b0 <- t(as.matrix(object$b0))
@@ -16,4 +18,4 @@ coef.alspath <- function(object, s = NULL, type =
     if (type == "coefficients") return(nbeta)
     if (type == "nonzero") # return locations of nonzero coefficients for each lambda
       return(nonzero(nbeta[-1, , drop = FALSE], bystep = TRUE))
-} 
+}

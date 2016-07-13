@@ -1,3 +1,8 @@
+#' @importFrom stats approx
+#' @importFrom methods new
+#' @import Matrix
+#' @importFrom graphics segments
+#'
 #################################################################
 ## These functions are either minor modifications or direct
 ##   copies from the glmnet package:
@@ -7,7 +12,7 @@
 ## Journal of Statistical Software, 33(1), 1-22.
 ## URL http://www.jstatsoft.org/v33/i01/.
 ## The reason they are copied here is because they are
-## internal functions and hence are not exported into 
+## internal functions and hence are not exported into
 ## the global environment.
 ## The original comments and header are preserved.
 #################################################################
@@ -15,22 +20,22 @@
 err <- function(n, maxit, pmax) {
   if (n == 0)  msg <- ""
   if (n > 0) {
-    if (n < 7777) 
+    if (n < 7777)
       msg <- "Memory allocation error"
-    if (n == 7777) 
+    if (n == 7777)
       msg <- "All used predictors have zero variance"
-    if (n == 10000) 
+    if (n == 10000)
       msg <- "All penalty factors are <= 0"
     n <- 1
     msg <- paste("in fortran code -", msg)
   }
   if (n < 0) {
-    if (n > -10000) 
-      msg <- paste("Convergence for ", -n, "th lambda value not reached after maxit=", 
-            maxit, " iterations; solutions for larger lambdas returned", 
+    if (n > -10000)
+      msg <- paste("Convergence for ", -n, "th lambda value not reached after maxit=",
+            maxit, " iterations; solutions for larger lambdas returned",
             sep = "")
-    if (n < -10000) 
-      msg <- paste("Number of nonzero coefficients along the path exceeds pmax=", 
+    if (n < -10000)
+      msg <- paste("Number of nonzero coefficients along the path exceeds pmax=",
                     pmax, " at ", -n - 10000, "th lambda value; solutions for larger lambdas returned", sep = "")
     n <- -1
     msg <- paste("from fortran code -", msg)
@@ -72,8 +77,8 @@ getoutput <- function(fit, maxit, pmax, nvars, vnames) {
   lam <- fit$alam[seq(nalam)]
   stepnames <- paste("s", seq(nalam) - 1, sep = "")
   errmsg <- err(fit$jerr, maxit, pmax)
-  switch(paste(errmsg$n), 
-         `1` = stop(errmsg$msg, call. = FALSE), 
+  switch(paste(errmsg$n),
+         `1` = stop(errmsg$msg, call. = FALSE),
          `-1` = print(errmsg$msg, call. = FALSE))
   dd <- c(nvars, nalam)
   if (nbetamax > 0) {
@@ -83,8 +88,8 @@ getoutput <- function(fit, maxit, pmax, nvars, vnames) {
     oja <- order(ja)
     ja <- rep(ja[oja], nalam)
     ibeta <- cumsum(c(1, rep(nbetamax, nalam)))
-    beta <- new("dgCMatrix", Dim = dd, Dimnames = list(vnames, stepnames), 
-                x = as.vector(beta[oja, ]), p = as.integer(ibeta - 1), 
+    beta <- new("dgCMatrix", Dim = dd, Dimnames = list(vnames, stepnames),
+                x = as.vector(beta[oja, ]), p = as.integer(ibeta - 1),
                 i = as.integer(ja - 1))
   } else {
       beta <- zeromat(nvars, nalam, vnames, stepnames)
@@ -99,15 +104,15 @@ getoutput <- function(fit, maxit, pmax, nvars, vnames) {
     ntheta <- fit$ntheta[seq(nalam)]
     nthetamax <- max(ntheta)
     if (nthetamax > 0) {
-      theta <- matrix(fit$theta[seq(pmax * nalam)], pmax, nalam)[seq(nthetamax), 
+      theta <- matrix(fit$theta[seq(pmax * nalam)], pmax, nalam)[seq(nthetamax),
           , drop = FALSE]
       df.theta <- apply(abs(theta) > 0, 2, sum)
       ja <- fit$itheta[seq(nthetamax)]
       oja <- order(ja)
       ja <- rep(ja[oja], nalam)
       itheta <- cumsum(c(1, rep(nthetamax, nalam)))
-      theta <- new("dgCMatrix", Dim = dd, Dimnames = list(vnames, stepnames), 
-          x = as.vector(theta[oja, ]), p = as.integer(itheta - 1), 
+      theta <- new("dgCMatrix", Dim = dd, Dimnames = list(vnames, stepnames),
+          x = as.vector(theta[oja, ]), p = as.integer(itheta - 1),
           i = as.integer(ja - 1))
     } else {
         theta <- zeromat(nvars, nalam, vnames, stepnames)
@@ -118,8 +123,8 @@ getoutput <- function(fit, maxit, pmax, nvars, vnames) {
     t0 <- t0[seq(nalam)]
     names(t0) <- stepnames
     }
-    return(list(b0 = b0, beta = beta, t0 = t0, theta = theta, 
-           df.beta = df.beta, df.theta = df.theta, 
+    return(list(b0 = b0, beta = beta, t0 = t0, theta = theta,
+           df.beta = df.beta, df.theta = df.theta,
            dim = dd, lambda = lam))
   }
   return(list(b0 = b0, beta = beta, df = df.beta, dim = dd, lambda = lam))
@@ -168,10 +173,10 @@ nonzero <- function(beta, bystep = FALSE) {
   ns <- ncol(beta)
   ##beta should be in 'dgCMatrix' format
   if (nrow(beta) == 1) {
-    if (bystep) 
-      apply(beta, 2, function(x) if (abs(x) > 0) 
+    if (bystep)
+      apply(beta, 2, function(x) if (abs(x) > 0)
           1 else NULL) else {
-      if (any(abs(beta) > 0)) 
+      if (any(abs(beta) > 0))
           1 else NULL
     }
   } else {
@@ -179,10 +184,10 @@ nonzero <- function(beta, bystep = FALSE) {
       actvars <- diff(beta@p)
       actvars <- seq(actvars)[actvars > 0]
       if (bystep) {
-        nzel <- function(x, actvars) if (any(x)) 
+        nzel <- function(x, actvars) if (any(x))
             actvars[x] else NULL
         beta <- abs(as.matrix(beta[, actvars])) > 0
-        if (ns == 1) 
+        if (ns == 1)
           apply(beta, 2, nzel, actvars) else apply(beta, 1, nzel, actvars)
       } else actvars
   }
@@ -195,14 +200,14 @@ zeromat <- function(nvars, nalam, vnames, stepnames) {
   ia <- seq(nalam + 1)
   ja <- rep(1, nalam)
   dd <- c(nvars, nalam)
-  new("dgCMatrix", Dim = dd, Dimnames = list(vnames, stepnames), 
+  new("dgCMatrix", Dim = dd, Dimnames = list(vnames, stepnames),
       x = as.vector(ca), p = as.integer(ia - 1), i = as.integer(ja - 1))
-} 
+}
 
 
 
 ## Asymmetric squared error loss
 ercls <- function(r, tau) {
   abs(tau - (r < 0)) * r^2
-} 
+}
 

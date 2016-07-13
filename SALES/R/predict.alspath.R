@@ -1,4 +1,6 @@
-predict.alspath <- function(object, newx, s = NULL, 
+#' @export
+#'
+predict.alspath <- function(object, newx, s = NULL,
     type = c("response"), ...) {
     type <- match.arg(type)
     b0 <- t(as.matrix(object$b0))
@@ -15,4 +17,4 @@ predict.alspath <- function(object, newx, s = NULL,
     }
     nfit <- as.matrix(as.matrix(cbind2(1, newx)) %*% nbeta)
     nfit
-} 
+}

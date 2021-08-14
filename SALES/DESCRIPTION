@@ -4,8 +4,8 @@ Title: Elastic Net and (Adaptive) Lasso Penalized Sparse Asymmetric Least
     Coordinate Descent and Proximal Gradient Algorithms
 Version: 1.0.1
 Date: 2015-12-26
-Author: Yuwen Gu <guxxx192@umn.edu>, Hui Zou <zouxx019@umn.edu>
-Maintainer: Yuwen Gu <guxxx192@umn.edu>
+Author: Yuwen Gu <yuwen.gu@uconn.edu>, Hui Zou <zouxx019@umn.edu>
+Maintainer: Yuwen Gu <yuwen.gu@uconn.edu>
 Imports:
     grDevices,
     graphics,
@@ -13,9 +13,12 @@ Imports:
     methods,
     Matrix
 Description: A coordinate descent algorithm for computing the solution path of
-    the sparse and coupled sparse asymmetric least squares, including the elastic
-    net and (adaptive) Lasso penalized SALES and COSALES regressions.
+    the sparse and coupled sparse asymmetric least squares, including the 
+    elastic net and (adaptive) Lasso penalized SALES and COSALES regressions.
 License: GPL-2
 Repository: CRAN
 NeedsCompilation: yes
 RoxygenNote: 5.0.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

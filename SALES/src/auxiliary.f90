@@ -1,10 +1,10 @@
-! DESCRIPTION: 
+! DESCRIPTION:
 !
 !    These functions are modified from the glmnet package:
 !
-!    Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010). 
-!    Regularization Paths for Generalized Linear Models via Coordinate Descent. 
-!    Journal of Statistical Software, 33(1), 1-22. 
+!    Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010).
+!    Regularization Paths for Generalized Linear Models via Coordinate Descent.
+!    Journal of Statistical Software, 33(1), 1-22.
 !    URL http://www.jstatsoft.org/v33/i01/.
 !
 ! --------------------------------------------------------------------------
@@ -12,11 +12,11 @@
 ! --------------------------------------------------------------------------
 !
 ! USAGE:
-! 
-! call standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)   
-! 
+!
+! call standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)
+!
 ! INPUT ARGUMENTS:
-! 
+!
 !    nobs = number of observations
 !    nvars = number of predictor variables
 !    x(nobs, nvars) = matrix of predictors, of dimension N * p; each row is an observation.
@@ -30,7 +30,7 @@
 !    intr = intercept flag:
 !           intr = 0 => intercept is always zero
 !           intr = 1 => intercept is calculated
-!    
+!
 ! OUTPUT:
 !
 !    x(nobs, nvars) = standarized matrix x
@@ -43,16 +43,16 @@
 ! --------------------------------------------------------------------------
 !
 ! USAGE:
-! 
+!
 ! call chkvars(nobs, nvars, x, ju)
-! 
+!
 ! INPUT ARGUMENTS:
-! 
+!
 !    nobs = number of observations
 !    nvars = number of predictor variables
 !    x(nobs, nvars) = matrix of predictors, of dimension N * p; each row is an observation.
 !    y(nobs) = response variable.
-!    
+!
 ! OUTPUT:
 !
 !    ju(nvars) = flag of predictor variables
@@ -61,7 +61,7 @@
 !
 
 ! ------------------------------------------------------------- !
-SUBROUTINE standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)     
+SUBROUTINE standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)
 
   IMPLICIT NONE
   ! -------- INPUT VARIABLES -------- !
@@ -85,20 +85,20 @@ SUBROUTINE standard(nobs, nvars, x, ju, isd, intr, xmean, xnorm, maj)
         END IF
       END IF
     END DO
-  ELSE                   
-    DO j = 1, nvars                                  
-      IF (ju(j) == 1) THEN                         
-        xmean(j) = SUM(x(:,j))/nobs  ! MEAN                        
-        x(:,j) = x(:,j) - xmean(j)    
-        maj(j) = DOT_PRODUCT(x(:,j),x(:,j))/nobs                                             
+  ELSE
+    DO j = 1, nvars
+      IF (ju(j) == 1) THEN
+        xmean(j) = SUM(x(:,j))/nobs  ! MEAN
+        x(:,j) = x(:,j) - xmean(j)
+        maj(j) = DOT_PRODUCT(x(:,j),x(:,j))/nobs
           IF (isd == 1) THEN
-            xnorm(j) = SQRT(maj(j))  ! STANDARD DEVIATION              
+            xnorm(j) = SQRT(maj(j))  ! STANDARD DEVIATION
             x(:,j) = x(:,j)/xnorm(j)
             maj(j) = 1.0D0
-          END IF                                                        
-      END IF                                     
-    END DO  
-  END IF                           
+          END IF
+      END IF
+    END DO
+  END IF
 END SUBROUTINE standard
 
 
@@ -112,7 +112,7 @@ SUBROUTINE chkvars(nobs, nvars, x, ju)
   ! -------- LOCAL DECLARATIONS -------- !
   INTEGER :: i,j
   DOUBLE PRECISION :: t
-  ! -------- BEGIN PROGRAM -------- ! 
+  ! -------- BEGIN PROGRAM -------- !
   DO j = 1, nvars
     ju(j) = 0
     t = x(1,j)

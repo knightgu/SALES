@@ -54,4 +54,5 @@ Thumbs.db
 *.tar.gz
 *.Rproj
 *.RData
+*.rda
 .Rproj.user

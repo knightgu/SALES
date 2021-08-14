@@ -1,20 +1,20 @@
 #' Regularization paths for the sparse asymmetric least squares (SALES)
 #' regression (or the sparse expectile regression)
-#' 
+#'
 #' Fits regularization paths for the Lasso or elastic net penalized asymmetric
 #' least squares regression at a sequence of regularization parameters.
-#' 
+#'
 #' Note that the objective function in \code{ernet} is
 #' \deqn{\Psi_{\tau}(y-X\beta))/N + \lambda_{1}*|\beta| +
 #' 0.5*\lambda_{2}*|\beta|^2,}{\Psi\tau(y-X\beta))/N + \lambda1*|\beta| +
 #' 0.5*\lambda2*||\beta||^2,} where \eqn{\Psi_{\tau}}{\Psi\tau} the asymmetric
 #' squared error loss and the penalty is a combination of weighted L1 and L2
 #' terms.
-#' 
+#'
 #' For faster computation, if the algorithm is not converging or running slow,
 #' consider increasing \code{eps}, decreasing \code{nlambda}, or increasing
 #' \code{lambda.factor} before increasing \code{maxit}.
-#' 
+#'
 #' @param x matrix of predictors, of dimension (nobs * nvars); each row is an
 #' observation.
 #' @param y response variable.
@@ -89,7 +89,7 @@
 #' of Statistics}.\cr
 #' @keywords models regression
 #' @examples
-#' 
+#'
 #' set.seed(1)
 #' n <- 100
 #' p <- 400
@@ -100,16 +100,16 @@
 #' pf2 <- abs(rnorm(p))
 #' lambda2 <- 1
 #' m1 <- ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
-#'             pf2 = pf2, standardize = FALSE, intercept = FALSE, 
+#'             pf2 = pf2, standardize = FALSE, intercept = FALSE,
 #'             lambda2 = lambda2)
-#' 
+#'
 #' @export ernet
-ernet <- function(x, y, nlambda = 100L, method = "er", 
-                  lambda.factor = ifelse(nobs < nvars, 1e-02, 1e-04), 
-                  lambda = NULL, lambda2 = 0, pf = rep(1, nvars), 
-                  pf2 = rep(1, nvars), exclude, dfmax = nvars + 1, 
-                  pmax = min(dfmax * 1.2, nvars), standardize = TRUE, 
-                  intercept = TRUE, eps = 1e-08, maxit = 1000000L, 
+ernet <- function(x, y, nlambda = 100L, method = "er",
+                  lambda.factor = ifelse(nobs < nvars, 1e-02, 1e-04),
+                  lambda = NULL, lambda2 = 0, pf = rep(1, nvars),
+                  pf2 = rep(1, nvars), exclude, dfmax = nvars + 1,
+                  pmax = min(dfmax * 1.2, nvars), standardize = TRUE,
+                  intercept = TRUE, eps = 1e-08, maxit = 1000000L,
                   tau = 0.5) {
     #################################################################################
     ## data setup
@@ -126,9 +126,9 @@ ernet <- function(x, y, nlambda = 100L, method = "er",
     if (NCOL(y) > 1L) stop("Multivariate response is not supported now")
     #################################################################################
     ## parameter setup
-    if (length(pf) != nvars) 
+    if (length(pf) != nvars)
       stop("Size of L1 penalty factors does not match the number of input variables")
-    if (length(pf2) != nvars) 
+    if (length(pf2) != nvars)
       stop("Size of L2 penalty factors does not match the number of input variables")
     if (lambda2 < 0) stop("lambda2 should be non-negative")
     maxit <- as.integer(maxit)
@@ -159,12 +159,12 @@ ernet <- function(x, y, nlambda = 100L, method = "er",
         nlam <- as.integer(length(lambda))
     }
     #################################################################################
-    fit <- alspath(x, y, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd, 
+    fit <- alspath(x, y, nlam, flmin, ulam, isd, intr, eps, dfmax, pmax, jd,
                 pf, pf2, maxit, lam2, tau, nobs, nvars, vnames)
-    if (is.null(lambda)) 
+    if (is.null(lambda))
         fit$lambda <- lamfix(fit$lambda)
     fit$call <- this.call
     #################################################################################
     class(fit) <- c("ernet", class(fit))
     fit
-} 
+}

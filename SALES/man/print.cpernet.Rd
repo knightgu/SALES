@@ -15,24 +15,24 @@
 }
 \value{
 a three-column matrix, the first two columns are the number of
-nonzero mean and scale coefficients respectively and the third column is
-\code{Lambda}.
+  nonzero mean and scale coefficients respectively and the third column is
+  \code{Lambda}.
 }
 \description{
 Print a summary of the \code{cpernet} path at each step along the path.
 }
 \details{
-The call that produced the \code{\link{cpernet}} object is printed, followed
-by a three-column matrix with columns \code{Df1}, \code{Df2} and
-\code{Lambda}. The \code{Df1} and \code{Df2} columns are the number of
-nonzero mean and scale coefficients respectively.
+The call that produced the \code{\link{cpernet}} object is printed,
+  followed by a three-column matrix with columns \code{Df1}, \code{Df2} and
+  \code{Lambda}. The \code{Df1} and \code{Df2} columns are the number of
+  nonzero mean and scale coefficients respectively.
 }
 \examples{
 
 set.seed(1)
 n <- 100
 p <- 400
-x <- matrix(rnorm(n*p), n, p)
+x <- matrix(rnorm(n * p), n, p)
 y <- rnorm(n)
 tau <- 0.30
 pf <- abs(rnorm(p))
@@ -46,8 +46,9 @@ print(m2)
 
 }
 \author{
-Yuwen Gu and Hui Zou\cr Maintainer: Yuwen Gu <guxxx192@umn.edu>
+Yuwen Gu and Hui Zou\cr
+
+  Maintainer: Yuwen Gu <yuwen.gu@uconn.edu>
 }
 \keyword{models}
 \keyword{regression}
-

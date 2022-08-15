@@ -1,21 +1,20 @@
-#' @importFrom stats approx
 #' @importFrom methods new
 #' @import Matrix
 #' @importFrom graphics segments
 #'
-#################################################################
-## These functions are either minor modifications or direct
-##   copies from the glmnet package:
+##############################################################################
+## These functions are either minor modifications or direct copies
+## from the `glmnet` package:
+##
 ## Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010).
-## Regularization Paths for Generalized Linear Models via
-##   Coordinate Descent.
+## Regularization Paths for Generalized Linear Models via Coordinate Descent.
 ## Journal of Statistical Software, 33(1), 1-22.
-## URL http://www.jstatsoft.org/v33/i01/.
-## The reason they are copied here is because they are
-## internal functions and hence are not exported into
-## the global environment.
+## URL: http://www.jstatsoft.org/v33/i01/.
+##
+## The reason they are copied here is because they are internal functions
+## and hence are not exported into the global environment.
 ## The original comments and header are preserved.
-#################################################################
+##############################################################################
 
 err <- function(n, maxit, pmax) {
   if (n == 0)  msg <- ""
@@ -31,12 +30,15 @@ err <- function(n, maxit, pmax) {
   }
   if (n < 0) {
     if (n > -10000)
-      msg <- paste("Convergence for ", -n, "th lambda value not reached after maxit=",
-            maxit, " iterations; solutions for larger lambdas returned",
-            sep = "")
+      msg <- paste("Convergence for ", -n,
+                   "th lambda value not reached after maxit=",
+                   maxit, " iterations; solutions for larger lambdas returned",
+                   sep = "")
     if (n < -10000)
       msg <- paste("Number of nonzero coefficients along the path exceeds pmax=",
-                    pmax, " at ", -n - 10000, "th lambda value; solutions for larger lambdas returned", sep = "")
+                   pmax, " at ", -n - 10000,
+                   "th lambda value; solutions for larger lambdas returned",
+                   sep = "")
     n <- -1
     msg <- paste("from fortran code -", msg)
   }
@@ -82,7 +84,8 @@ getoutput <- function(fit, maxit, pmax, nvars, vnames) {
          `-1` = print(errmsg$msg, call. = FALSE))
   dd <- c(nvars, nalam)
   if (nbetamax > 0) {
-    beta <- matrix(fit$beta[seq(pmax * nalam)], pmax, nalam)[seq(nbetamax), , drop = FALSE]
+    beta <- matrix(fit$beta[seq(pmax * nalam)],
+                   pmax, nalam)[seq(nbetamax), , drop = FALSE]
     df.beta <- apply(abs(beta) > 0, 2, sum)
     ja <- fit$ibeta[seq(nbetamax)]
     oja <- order(ja)
@@ -133,14 +136,11 @@ getoutput <- function(fit, maxit, pmax, nvars, vnames) {
 
 
 lambda.interp <- function(lambda, s) {
-  ### lambda is the index sequence that is produced by the model;
-  ### s is the new vector at which evaluations are required.
-  ### the value is a vector of left and right indices, and a
-  #   vector of fractions.
-  ### the new values are interpolated bewteen the two using
-  #   the fraction
-  ### Note: lambda decreases. you take:
-  ### sfrac*left+(1-sfrac)*right
+  ## lambda is the index sequence that is produced by the model;
+  ## s is the new vector at which evaluations are required.
+  ## The value is a vector of left and right indices, and a vector of fractions.
+  ## The new values are interpolated bewteen the two using the fraction
+  ## Note: lambda decreases. You take sfrac*left+(1-sfrac)*right
   if (length(lambda) == 1) {
     nums <- length(s)
     left <- rep(1, nums)
@@ -171,7 +171,7 @@ lamfix <- function(lam) {
 
 nonzero <- function(beta, bystep = FALSE) {
   ns <- ncol(beta)
-  ##beta should be in 'dgCMatrix' format
+  ## beta should be in 'dgCMatrix' format
   if (nrow(beta) == 1) {
     if (bystep)
       apply(beta, 2, function(x) if (abs(x) > 0)
@@ -210,4 +210,3 @@ zeromat <- function(nvars, nalam, vnames, stepnames) {
 ercls <- function(r, tau) {
   abs(tau - (r < 0)) * r^2
 }
-

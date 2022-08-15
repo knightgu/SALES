@@ -15,22 +15,22 @@
 }
 \value{
 a two-column matrix, the first columns is the number of nonzero
-coefficients and the second column is \code{Lambda}.
+  coefficients and the second column is \code{Lambda}.
 }
 \description{
 Print a summary of the ernet path at each step along the path.
 }
 \details{
-The call that produced the \code{\link{ernet}} object is printed, followed
-by a two-column matrix with columns \code{Df} and \code{Lambda}. The
-\code{Df} column is the number of nonzero coefficients.
+The call that produced the \code{\link{ernet}} object is printed,
+  followed by a two-column matrix with columns \code{Df} and \code{Lambda}.
+  The \code{Df} column is the number of nonzero coefficients.
 }
 \examples{
 
 set.seed(1)
 n <- 100
 p <- 400
-x <- matrix(rnorm(n*p), n, p)
+x <- matrix(rnorm(n * p), n, p)
 y <- rnorm(n)
 tau <- 0.90
 pf <- abs(rnorm(p))
@@ -43,8 +43,9 @@ print(m1)
 
 }
 \author{
-Yuwen Gu and Hui Zou\cr Maintainer: Yuwen Gu <guxxx192@umn.edu>
+Yuwen Gu and Hui Zou\cr
+
+  Maintainer: Yuwen Gu <yuwen.gu@uconn.edu>
 }
 \keyword{models}
 \keyword{regression}
-

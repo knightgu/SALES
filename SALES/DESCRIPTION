@@ -1,9 +1,8 @@
 Package: SALES
-Title: Elastic Net and (Adaptive) Lasso Penalized Sparse Asymmetric Least
-    Squares (SALES) and Coupled Sparse Asymmetric Least Squares (COSALES) using
-    Coordinate Descent and Proximal Gradient Algorithms
-Version: 1.0.1
-Date: 2015-12-26
+Title: The (Adaptive) Elastic Net and Lasso Penalized Sparse Asymmetric Least
+    Squares (SALES) and Coupled Sparse Asymmetric Least Squares (COSALES)
+    using Coordinate Descent and Proximal Gradient Algorithms
+Version: 1.0.2
 Author: Yuwen Gu <yuwen.gu@uconn.edu>, Hui Zou <zouxx019@umn.edu>
 Maintainer: Yuwen Gu <yuwen.gu@uconn.edu>
 Imports:
@@ -12,13 +11,14 @@ Imports:
     stats,
     methods,
     Matrix
-Description: A coordinate descent algorithm for computing the solution path of
-    the sparse and coupled sparse asymmetric least squares, including the 
-    elastic net and (adaptive) Lasso penalized SALES and COSALES regressions.
-License: GPL-2
+Description: A coordinate descent algorithm for computing the solution paths of
+    the sparse and coupled sparse asymmetric least squares, including the
+    (adaptive) elastic net and Lasso penalized SALES and COSALES regressions.
+License: GPL (>= 2)
+Encoding: UTF-8
+URL: https://github.com/knightgu/SALES
 Repository: CRAN
+Date/Publication: 2015-12-26
 NeedsCompilation: yes
-RoxygenNote: 5.0.1
-Suggests: 
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
+RoxygenNote: 7.2.1
+Suggests: testthat

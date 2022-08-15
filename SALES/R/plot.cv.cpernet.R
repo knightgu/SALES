@@ -1,14 +1,12 @@
-###############################################################
-## This function is adapted/modified based on the plot.cv
-#    function from the glmnet package:
+##############################################################################
+## This function is adapted/modified based on the plot function
+## from the `glmnet` package:
+##
 ## Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010).
-## Regularization Paths for Generalized Linear Models via
-#    Coordinate Descent.
+## Regularization Paths for Generalized Linear Models via Coordinate Descent.
 ## Journal of Statistical Software, 33(1), 1-22.
-## URL http://www.jstatsoft.org/v33/i01/.
-###############################################################
-
-
+## URL: http://www.jstatsoft.org/v33/i01/.
+##############################################################################
 
 #' Plot the cross-validated curve produced by cv.cpernet
 #'
@@ -21,17 +19,23 @@
 #'
 #' @param x fitted \code{\link{cv.cpernet}} object
 #' @param sign.lambda either plot against \code{log(lambda)} (default) or its
-#' negative if \code{sign.lambda=-1}.
+#'   negative if \code{sign.lambda=-1}.
 #' @param \dots other graphical parameters to plot
-#' @author Yuwen Gu and Hui Zou\cr Maintainer: Yuwen Gu <guxxx192@@umn.edu>
-#' @seealso \code{\link{cv.cpernet}}
+#'
+#' @author Yuwen Gu and Hui Zou\cr
+#'
+#'   Maintainer: Yuwen Gu <yuwen.gu@uconn.edu>
+#'
+#' @seealso \code{\link{plot.cpernet}}
+#'
 #' @keywords models regression
+#'
 #' @examples
 #'
 #' set.seed(1)
 #' n <- 100
 #' p <- 400
-#' x <- matrix(rnorm(n*p), n, p)
+#' x <- matrix(rnorm(n * p), n, p)
 #' y <- rnorm(n)
 #' tau <- 0.30
 #' pf <- abs(rnorm(p))
@@ -39,29 +43,29 @@
 #' w <- 2.0
 #' lambda2 <- 1
 #' m2.cv <- cv.cpernet(y = y, x = x, w = w, tau = tau, eps = 1e-8,
-#'               pf.mean = pf, pf.scale = pf2,
-#'               standardize = FALSE, lambda2 = lambda2)
+#'                     pf.mean = pf, pf.scale = pf2,
+#'                     standardize = FALSE, lambda2 = lambda2)
 #' plot(m2.cv)
 #'
-#' @importFrom graphics points abline
 #' @export
 plot.cv.cpernet <- function(x, sign.lambda = 1, ...) {
-    cvobj <- x
-    xlab <- "log(Lambda)"
-    if (sign.lambda < 0) xlab <- paste("-", xlab, sep = "")
-    plot.args <- list(x = sign.lambda * log(cvobj$lambda), y = cvobj$cvm,
-      ylim = range(cvobj$cvupper, cvobj$cvlower), xlab = xlab,
-      ylab = cvobj$name, type = "n")
-    new.args <- list(...)
-    if (length(new.args))
-      plot.args[names(new.args)] <- new.args
-    do.call("plot", plot.args)
-    error.bars(sign.lambda * log(cvobj$lambda), cvobj$cvupper,
-      cvobj$cvlower, width = 0.01, col = "darkgrey")
-    points(sign.lambda * log(cvobj$lambda), cvobj$cvm, pch = 20, col = "red")
-    # axis(side = 3, at = sign.lambda * log(cvobj$lambda), labels = paste(cvobj$nz),
-    #     tick = FALSE, line = 0)
-    abline(v = sign.lambda * log(cvobj$lambda.min), lty = 3)
-    abline(v = sign.lambda * log(cvobj$lambda.1se), lty = 3)
-    invisible()
+  cvobj <- x
+  xlab <- "log(Lambda)"
+  if (sign.lambda < 0) xlab <- paste("-", xlab, sep = "")
+  plot.args <- list(x = sign.lambda * log(cvobj$lambda), y = cvobj$cvm,
+                    ylim = range(cvobj$cvupper, cvobj$cvlower), xlab = xlab,
+                    ylab = cvobj$name, type = "n")
+  new.args <- list(...)
+  if (length(new.args))
+    plot.args[names(new.args)] <- new.args
+  do.call("plot", plot.args)
+  error.bars(sign.lambda * log(cvobj$lambda), cvobj$cvupper,
+             cvobj$cvlower, width = 0.01, col = "darkgrey")
+  points(sign.lambda * log(cvobj$lambda), cvobj$cvm, pch = 20, col = "red")
+  ## axis(side = 3, at = sign.lambda * log(cvobj$lambda),
+  ##      labels = paste(cvobj$nz),
+  ## tick = FALSE, line = 0)
+  abline(v = sign.lambda * log(cvobj$lambda.min), lty = 3)
+  abline(v = sign.lambda * log(cvobj$lambda.1se), lty = 3)
+  invisible()
 }

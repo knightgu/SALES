@@ -5,11 +5,25 @@
 \title{Regularization paths for the sparse asymmetric least squares (SALES)
 regression (or the sparse expectile regression)}
 \usage{
-ernet(x, y, nlambda = 100L, method = "er", lambda.factor = ifelse(nobs <
-  nvars, 0.01, 1e-04), lambda = NULL, lambda2 = 0, pf = rep(1, nvars),
-  pf2 = rep(1, nvars), exclude, dfmax = nvars + 1, pmax = min(dfmax * 1.2,
-  nvars), standardize = TRUE, intercept = TRUE, eps = 1e-08,
-  maxit = 1000000L, tau = 0.5)
+ernet(
+  x,
+  y,
+  nlambda = 100L,
+  method = "er",
+  lambda.factor = ifelse(nobs < nvars, 0.01, 1e-04),
+  lambda = NULL,
+  lambda2 = 0,
+  pf = rep(1, nvars),
+  pf2 = rep(1, nvars),
+  exclude,
+  dfmax = nvars + 1,
+  pmax = min(dfmax * 1.2, nvars),
+  standardize = TRUE,
+  intercept = TRUE,
+  eps = 1e-08,
+  maxit = 1000000L,
+  tau = 0.5
+)
 }
 \arguments{
 \item{x}{matrix of predictors, of dimension (nobs * nvars); each row is an
@@ -23,15 +37,15 @@ observation.}
 \code{er} is available now.}
 
 \item{lambda.factor}{The factor for getting the minimal lambda in the
-\code{lambda} sequence, where \code{min(lambda)} = \code{lambda.factor} *
-\code{max(lambda)}.  \code{max(lambda)} is the smallest value of
-\code{lambda} for which all coefficients are zero. The default depends on
-the relationship between \eqn{N} (the number of rows in the matrix of
-predictors) and \eqn{p} (the number of predictors). If \eqn{N < p}, the
-default is \code{0.01}. If \eqn{N > p}, the default is \code{0.0001}, closer
-to zero.  A very small value of \code{lambda.factor} will lead to a
-saturated fit. It takes no effect if there is a user-supplied \code{lambda}
-sequence.}
+\code{lambda} sequence, where we set \code{min(lambda)} =
+\code{lambda.factor} * \code{max(lambda)} with \code{max(lambda)} being the
+smallest value of \code{lambda} that penalizes all coefficients to zero.
+The default depends on the relationship between \eqn{N} (the number of rows
+in the matrix of predictors) and \eqn{p} (the number of predictors). If
+\eqn{N < p}, the default is \code{0.01}. If \eqn{N > p}, the default is
+\code{0.0001}, closer to zero. A very small value of \code{lambda.factor}
+will lead to a saturated fit. It takes no effect if there is a
+user-supplied \code{lambda} sequence.}
 
 \item{lambda}{a user-supplied \code{lambda} sequence. Typically, by leaving
 this option unspecified users can have the program compute its own
@@ -51,21 +65,21 @@ which imposes no shrinkage, and results in that variable always be included
 in the model. Default is 1 for all variables (and implicitly infinity for
 variables listed in \code{exclude}).}
 
-\item{pf2}{L2 penalty factor of length \eqn{p} used for adaptive elastic
-net. Separate L2 penalty weights can be applied to each coefficient to allow
+\item{pf2}{L2 penalty factor of length \eqn{p} used for adaptive elastic net.
+Separate L2 penalty weights can be applied to each coefficient to allow
 different L2 shrinkage. Can be 0 for some variables, which imposes no
 shrinkage. Default is 1 for all variables.}
 
-\item{exclude}{indices of variables to be excluded from the model. Default
-is none. Equivalent to an infinite penalty factor.}
+\item{exclude}{indices of variables to be excluded from the model. Default is
+none. Equivalent to an infinite penalty factor.}
 
-\item{dfmax}{the maximum number of variables allowed in the model. Useful
-for very large \eqn{p} when a partial path is desired. Default is \eqn{p+1}.}
+\item{dfmax}{the maximum number of variables allowed in the model. Useful for
+very large \eqn{p} when a partial path is desired. Default is \eqn{p+1}.}
 
 \item{pmax}{the maximum number of coefficients allowed ever to be nonzero.
 For example once \eqn{\beta} enters the model, no matter how many times it
-exits or re-enters the model through the path, it will be counted only once.
-Default is \code{min(dfmax*1.2, p)}.}
+exits or re-enters the model through the path, it will be counted only
+once. Default is \code{min(dfmax*1.2, p)}.}
 
 \item{standardize}{logical flag for variable standardization, prior to
 fitting the model sequence. The coefficients are always returned to the
@@ -86,17 +100,27 @@ increasing \code{maxit}.}
 must be in (0,1). Default is 0.5.}
 }
 \value{
-An object with S3 class \code{\link{ernet}}.  \item{call}{the call
-that produced this object} \item{b0}{intercept sequence of length
-\code{length(lambda)}} \item{beta}{a \code{p*length(lambda)} matrix of
-coefficients, stored as a sparse matrix (\code{dgCMatrix} class, the
-standard class for sparse numeric matrices in the \code{Matrix} package.).
-To convert it into normal type matrix use \code{as.matrix()}.}
-\item{lambda}{the actual sequence of \code{lambda} values used}
-\item{df}{the number of nonzero coefficients for each value of
-\code{lambda}.} \item{dim}{dimension of coefficient matrix}
-\item{npasses}{total number of iterations summed over all lambda values}
-\item{jerr}{error flag, for warnings and errors, 0 if no error.}
+An object with S3 class \code{\link{ernet}}.
+
+  \item{call}{the call that produced this object}
+
+  \item{b0}{intercept sequence of length \code{length(lambda)}}
+
+  \item{beta}{a \code{p*length(lambda)} matrix of coefficients, stored as a
+  sparse matrix (\code{dgCMatrix} class, the standard class for sparse
+  numeric matrices in the \code{Matrix} package.). To convert it into normal
+  type matrix use \code{as.matrix()}.}
+
+  \item{lambda}{the actual sequence of \code{lambda} values used}
+
+  \item{df}{the number of nonzero coefficients for each value of
+  \code{lambda}.}
+
+  \item{dim}{dimension of coefficient matrix}
+
+  \item{npasses}{total number of iterations summed over all lambda values}
+
+  \item{jerr}{error flag, for warnings and errors, 0 if no error.}
 }
 \description{
 Fits regularization paths for the Lasso or elastic net penalized asymmetric
@@ -104,43 +128,45 @@ least squares regression at a sequence of regularization parameters.
 }
 \details{
 Note that the objective function in \code{ernet} is
-\deqn{\Psi_{\tau}(y-X\beta))/N + \lambda_{1}*|\beta| +
-0.5*\lambda_{2}*|\beta|^2,}{\Psi\tau(y-X\beta))/N + \lambda1*|\beta| +
-0.5*\lambda2*||\beta||^2,} where \eqn{\Psi_{\tau}}{\Psi\tau} the asymmetric
-squared error loss and the penalty is a combination of weighted L1 and L2
-terms.
+  \deqn{1'\Psi_{\tau}(y-X\beta)/N + \lambda_{1}*\Vert\beta\Vert_1 +
+  0.5\lambda_{2}*\Vert\beta\Vert_2^2,}{1'\Psi\tau(y-X\beta)/N +
+  \lambda1*|\beta| + 0.5*\lambda2*||\beta||^2,} where
+  \eqn{\Psi_{\tau}}{\Psi\tau} denotes the asymmetric squared error loss and
+  the penalty is a combination of weighted L1 and L2 terms.
 
-For faster computation, if the algorithm is not converging or running slow,
-consider increasing \code{eps}, decreasing \code{nlambda}, or increasing
-\code{lambda.factor} before increasing \code{maxit}.
+  For faster computation, if the algorithm is not converging or running slow,
+  consider increasing \code{eps}, decreasing \code{nlambda}, or increasing
+  \code{lambda.factor} before increasing \code{maxit}.
 }
 \examples{
 
 set.seed(1)
 n <- 100
 p <- 400
-x <- matrix(rnorm(n*p), n, p)
+x <- matrix(rnorm(n * p), n, p)
 y <- rnorm(n)
 tau <- 0.90
 pf <- abs(rnorm(p))
 pf2 <- abs(rnorm(p))
 lambda2 <- 1
 m1 <- ernet(y = y, x = x, tau = tau, eps = 1e-8, pf = pf,
-            pf2 = pf2, standardize = FALSE, intercept = FALSE, 
+            pf2 = pf2, standardize = FALSE, intercept = FALSE,
             lambda2 = lambda2)
 
 }
-\author{
-Yuwen Gu and Hui Zou\cr Maintainer: Yuwen Gu <guxxx192@umn.edu>
-}
 \references{
-Gu, Y. and Zou, H. (Preprint), "High-dimensional Generalizations
-of Asymmetric Least Squares Regression and Their Applications". \emph{Annals
-of Statistics}.\cr
+Gu, Y., and Zou, H. (2016).
+  "High-dimensional generalizations of asymmetric least squares regression and their applications."
+  \emph{The Annals of Statistics}, 44(6), 2661–2694.\cr
 }
 \seealso{
-\code{\link{plot.ernet}}
+\code{\link{plot.ernet}}, \code{\link{coef.ernet}},
+  \code{\link{predict.ernet}}, \code{\link{print.ernet}}
+}
+\author{
+Yuwen Gu and Hui Zou\cr
+
+  Maintainer: Yuwen Gu <yuwen.gu@uconn.edu>
 }
 \keyword{models}
 \keyword{regression}
-

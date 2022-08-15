@@ -1,5 +1,4 @@
-cv.alspath <- function(outlist, lambda, x, y, foldid, 
-  pred.loss, tau) {
+cv.alspath <- function(outlist, lambda, x, y, foldid, pred.loss, tau) {
   typenames <- "Asymmetric squared error loss"
   if (!match(pred.loss, c("loss"), FALSE)) {
     warning("Only 'loss' available for ALS regression; 'loss' used")
@@ -20,7 +19,6 @@ cv.alspath <- function(outlist, lambda, x, y, foldid,
   cvraw <- ercls(y-predmat, tau)
   N <- length(y) - apply(is.na(predmat), 2, sum)
   cvm <- apply(cvraw, 2, mean, na.rm = TRUE)
-  cvsd <- sqrt(apply(scale(cvraw, cvm, FALSE)^2, 2, mean, na.rm = TRUE)/(N - 
-      1))
+  cvsd <- sqrt(apply(scale(cvraw, cvm, FALSE)^2, 2, mean, na.rm = TRUE)/(N - 1))
   list(cvm = cvm, cvsd = cvsd, name = typenames)
-} 
+}

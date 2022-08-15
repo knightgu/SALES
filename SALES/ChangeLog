@@ -1,5 +1,10 @@
 CHANGELOG
 
+2022-08-15: version 1.0.2
+* Format all R and FORTRAN sources
+* Improve documentation
+* Properly register dynamic symbols
+=======================================================================
 2016-07-13: version 1.0.1
 * Put documentation in roxygen style with Rd2roxygen.
 =======================================================================
